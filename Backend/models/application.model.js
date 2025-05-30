@@ -11,7 +11,7 @@ const applicationSchema = new mongoose.Schema({
       default: 'applied',
     },
   
-    aiFitScore: {type:Number, default: 5}, // Resume Matcher AI output
+    aiFitScore: {type:Number}, // Resume Matcher AI output
   
     interview: {
       scheduledAt: Date,
