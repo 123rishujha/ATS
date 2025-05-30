@@ -8,6 +8,7 @@ const { connection } = require("./config/db");
 const { userRouter } = require("./routes/user.routes");
 const { jobPostRouter } = require("./routes/jobpost.routes");
 const { awsRouter } = require("./routes/aws.routes");
+const { applicationRouter } = require("./routes/application.routes");
 const { authMiddleware } = require("./middlewares/authMiddleware");
 
 
@@ -31,6 +32,7 @@ app.get("/", authMiddleware, (req, res) => {
 //routes
 app.use("/api/user", userRouter);
 app.use("/api/jobposts", jobPostRouter);
+app.use("/api/applications", applicationRouter);
 
 app.use("/api", awsRouter);
 
