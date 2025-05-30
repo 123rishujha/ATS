@@ -1,0 +1,153 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Modern color palette */
+    --background: 0 0% 98%;
+    --foreground: 222 47% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 235 86% 65%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 221 83% 53%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 40 20% 90%;
+    --muted-foreground: 25 30% 30%;
+
+    --accent: 35 50% 70%;
+    --accent-foreground: 25 50% 12%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 40 30% 96%;
+
+    --border: 25 30% 85%;
+    --input: 25 30% 85%;
+    --ring: 25 40% 45%;
+
+    --radius: 0.5rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', sans-serif;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: 'Poppins', sans-serif;
+    @apply font-medium;
+  }
+}
+
+@layer components {
+  /* Modern Card Styles */
+  .book-card {
+    @apply relative bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl border border-gray-100 hover:border-primary/20;
+  }
+
+  /* Modern Button Styles */
+  .btn-primary {
+    @apply bg-primary text-white px-4 py-2 rounded-lg font-medium transition-all duration-300 hover:bg-primary/90 hover:shadow-md flex items-center justify-center gap-2;
+  }
+
+  .btn-secondary {
+    @apply bg-white text-primary border border-primary/20 px-4 py-2 rounded-lg font-medium transition-all duration-300 hover:bg-primary/5 hover:shadow-sm flex items-center justify-center gap-2;
+  }
+
+  .btn-outline {
+    @apply bg-transparent text-gray-700 border border-gray-200 px-4 py-2 rounded-lg font-medium transition-all duration-300 hover:bg-gray-50 hover:border-gray-300 flex items-center justify-center gap-2;
+  }
+
+  .btn-danger {
+    @apply bg-red-500 text-white px-4 py-2 rounded-lg font-medium transition-all duration-300 hover:bg-red-600 hover:shadow-md flex items-center justify-center gap-2;
+  }
+
+  /* Layout Components */
+  .section {
+    @apply py-8 px-4 md:px-6 max-w-7xl mx-auto;
+  }
+
+  /* Table Styles */
+  .table-modern {
+    @apply w-full border-collapse;
+  }
+
+  .table-modern th {
+    @apply bg-gray-50 text-gray-700 font-medium text-sm px-4 py-3 text-left border-b border-gray-200;
+  }
+
+  .table-modern td {
+    @apply px-4 py-3 border-b border-gray-100 text-gray-800;
+  }
+
+  .table-modern tr:hover td {
+    @apply bg-gray-50;
+  }
+
+  /* Status Badge Styles */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .badge-success {
+    @apply bg-green-100 text-green-800;
+  }
+
+  .badge-warning {
+    @apply bg-yellow-100 text-yellow-800;
+  }
+
+  .badge-error {
+    @apply bg-red-100 text-red-800;
+  }
+
+  .badge-info {
+    @apply bg-blue-100 text-blue-800;
+  }
+
+  /* Form Controls */
+  .form-control {
+    @apply block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary;
+  }
+
+  .form-label {
+    @apply block text-sm font-medium text-gray-700 mb-1;
+  }
+
+  /* Card Components */
+  .card {
+    @apply bg-white rounded-xl shadow-md overflow-hidden border border-gray-100;
+  }
+
+  .card-header {
+    @apply px-6 py-4 border-b border-gray-100 bg-gray-50;
+  }
+
+  .card-body {
+    @apply p-6;
+  }
+
+  .card-footer {
+    @apply px-6 py-4 border-t border-gray-100 bg-gray-50;
+  }
+}

@@ -11,12 +11,11 @@ const { awsRouter } = require("./routes/aws.routes");
 const { applicationRouter } = require("./routes/application.routes");
 const { authMiddleware } = require("./middlewares/authMiddleware");
 
-
 const app = express();
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "*",
+    origin: "http://localhost:5173", // Your frontend URL (Vite's default port)
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -25,7 +24,7 @@ app.use(
 
 app.use(express.json());
 
-app.get("/", authMiddleware, (req, res) => {
+app.get("/", (req, res) => {
   res.json({ message: "working" });
 });
 
