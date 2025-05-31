@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, replace, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, Bell, User, LogOut, FileText, Briefcase } from "lucide-react";
 import { useDispatch } from "react-redux";
@@ -15,7 +15,7 @@ const JobSeekerNavbar = () => {
   const handleLogout = () => {
     dispatch(userLogout());
     ToastHandler("Suc", "Logged out successfully");
-    navigate("/login");
+    navigate("auth/login", { replace: true });
   };
 
   return (

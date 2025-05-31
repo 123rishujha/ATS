@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const jobSchema = new mongoose.Schema({
   recruiterId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: "User",
     required: true,
   },
 
@@ -13,7 +13,7 @@ const jobSchema = new mongoose.Schema({
   },
 
   description: {
-    type: String,
+    type: mongoose.Schema.Types.Mixed,
     required: true,
   },
 
@@ -24,8 +24,8 @@ const jobSchema = new mongoose.Schema({
 
   jobType: {
     type: String,
-    enum: ['full-time', 'part-time', 'contract', 'remote', 'hybrid'],
-    default: 'full-time',
+    enum: ["full-time", "part-time", "contract", "remote", "hybrid"],
+    default: "full-time",
   },
 
   salaryRange: {
@@ -49,10 +49,8 @@ const jobSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-
 });
-
 
 const JobPostModel = mongoose.model("JobPost", jobSchema);
 
-module.exports = {JobPostModel};
+module.exports = { JobPostModel };
