@@ -12,13 +12,13 @@ const recruiterJobPostSlice = slice.injectEndpoints({
       invalidatesTags: ["recruiter-job-post"],
     }),
     // Get all job posts
-    getAllJobPosts: builder.query({
-      query: () => ({
-        url: "api/jobposts/",
-        method: "GET",
-      }),
-      providesTags: ["recruiter-job-post"],
-    }),
+    // getAllJobPosts: builder.query({
+    //   query: () => ({
+    //     url: "api/jobposts/",
+    //     method: "GET",
+    //   }),
+    //   providesTags: ["recruiter-job-post"],
+    // }),
     // Get job posts for the logged-in recruiter
     getRecruiterJobPosts: builder.query({
       query: () => ({
@@ -48,7 +48,7 @@ const recruiterJobPostSlice = slice.injectEndpoints({
 });
 
 export const {
-  useGetAllJobPostsQuery,
+  // useGetAllJobPostsQuery,
   useGetRecruiterJobPostsQuery,
   useGetJobPostByIdQuery,
   useJobPostOperMutation,

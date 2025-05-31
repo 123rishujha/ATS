@@ -93,21 +93,21 @@ const JobDetails = () => {
           <div className="flex items-center gap-4 text-muted-foreground">
             <span>{jobPost.location}</span>
             <span>|</span>
-            <span>Salary: {jobPost.salaryRange}</span>
+            <span>Salary: {jobPost.salaryRange.min-jobPost.salaryRange.max}</span>
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
           <div>
             <h3 className="text-lg font-semibold">Description</h3>
             <div className="mt-2 text-gray-700">
-              {renderDescription(jobPost.description)}
+              {/* {renderDescription(jobPost.description)} */}
             </div>
           </div>
 
           <div>
             <h3 className="text-lg font-semibold">Requirements</h3>
             <p className="mt-2 text-gray-700">
-              Experience: {jobPost.experienceRequired}
+              Experience: {jobPost.experienceRequired.min-jobPost.experienceRequired.max}
             </p>
             <div className="mt-2">
               <h4 className="text-md font-semibold">Required Skills:</h4>

@@ -4,13 +4,15 @@ const jobseekerSlice = slice.injectEndpoints({
   endpoints: (builder) => ({
     // Get all job posts
     getAllJobPosts: builder.query({
-      query: () => ({
-        url: "api/jobposts/",
-        method: "GET",
-      }),
+      query: () => {
+        console.log("ajldf callled")
+        return {
+          url: "api/jobposts/",
+          method: "GET",
+        }
+      },
       providesTags: ["recruiter-job-post"],
       transformResponse: (res) => {
-        console.log("ajld res", res);
         return res.data || [];
       },
     }),
@@ -20,6 +22,9 @@ const jobseekerSlice = slice.injectEndpoints({
         url: `api/jobposts/${id}`,
         method: "GET",
       }),
+      transformResponse: (res) => {
+        return res.data;
+      },
       providesTags: ["recruiter-job-post"],
     }),
     updateProfile: builder.mutation({

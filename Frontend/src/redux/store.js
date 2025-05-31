@@ -15,14 +15,23 @@ function loadFromLocalStorage() {
   }
 }
 
+// function saveToLocalStorage(state) {
+//   try {
+//     const storage = JSON.stringify(state);
+//     localStorage.setItem(localStoragekeys.userState, storage);
+//   } catch (e) {
+//     console.warn(e);
+//   }
+// }
 function saveToLocalStorage(state) {
   try {
-    const storage = JSON.stringify(state);
-    localStorage.setItem(localStoragekeys.userState, storage);
+    const userState = JSON.stringify({ user: state.user }); // Only save user slice
+    localStorage.setItem(localStoragekeys.userState, userState);
   } catch (e) {
     console.warn(e);
   }
 }
+
 
 export const store = configureStore({
   reducer: {
