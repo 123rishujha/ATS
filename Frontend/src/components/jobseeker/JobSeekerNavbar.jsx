@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link, replace, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, Bell, User, LogOut, FileText, Briefcase } from "lucide-react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Logo from "../common/Logo";
 import { userLogout } from "@/redux/user/userSlice";
 import { ToastHandler } from "../myToast/ToastHandler";
@@ -11,6 +11,7 @@ const JobSeekerNavbar = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+const {userState } = useSelector(s=>s.user);
 
   const handleLogout = () => {
     dispatch(userLogout());
@@ -61,9 +62,9 @@ const JobSeekerNavbar = () => {
             {isProfileOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border py-1 z-50">
                 <div className="px-4 py-2 border-b">
-                  <p className="text-sm font-medium">John Doe</p>
+                  <p className="text-sm font-medium">{userState.name || ""}</p>
                   <p className="text-xs text-muted-foreground">
-                    john@example.com
+                    {userState.email || ""}
                   </p>
                 </div>
                 <div className="py-1">

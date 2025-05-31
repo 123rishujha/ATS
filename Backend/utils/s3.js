@@ -7,6 +7,8 @@ const {
 } = require("@aws-sdk/client-s3");
 
 const BUCKET_NAME = "connect-randomly";
+// const BUCKET_NAME = "aipower";
+
 
 const s3Client = new S3Client({
   region: "ap-south-1",

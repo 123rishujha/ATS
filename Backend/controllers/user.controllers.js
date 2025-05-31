@@ -138,6 +138,15 @@ const updateProfile = async (req, res, next) => {
     if (req.body.name) {
       user.name = req.body.name;
     }
+
+    if(req.body.userPhoto){
+      user.userPhoto = req.body.userPhoto;
+    }
+
+    if(req.body.description){
+      user.description = req.body.description;
+    }
+
     // Optionally allow other common fields here (e.g., email) with validation
 
     // Role-specific updates
@@ -146,7 +155,8 @@ const updateProfile = async (req, res, next) => {
         if (!user.resume) user.resume = {};
         Object.assign(user.resume, req.body.resume);
         // Always set uploadedAt if not provided
-        if (!user.resume.uploadedAt) user.resume.uploadedAt = (new Date()).toISOString();
+        // if (!user.resume.uploadedAt) 
+        user.resume.uploadedAt = (new Date()).toISOString();
       }
       if (req.body.jobPreferences) {
         if (!user.jobPreferences) user.jobPreferences = {};
@@ -178,10 +188,15 @@ const updateProfile = async (req, res, next) => {
       updatedUser.updatedAt = new Date(updatedUser.updatedAt).toISOString();
     }
 
+    const token = jwt.sign(
+      { userId: user._id },
+      process.env.JWT_SECRET || "your-secret-key"
+    );
+
     res.json({
       success: true,
       msg: "Profile updated successfully",
-      user: updatedUser,
+      data: {...updatedUser,token},
     });
   } catch (err) {
     console.log("Error in updateProfile:", err);

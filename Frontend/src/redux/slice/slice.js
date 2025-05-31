@@ -6,7 +6,8 @@ import { ToastConst } from "../../constants";
 import getToken from "@/imports/getToken";
 
 const baseQueryFunc = async (payload, api) => {
-  const token = getToken();
+  const token  =getToken()
+  console.log(token,'qqqqqqqqq')
   const requestObj = {
     method: payload.method,
     url: `${main_backend_url}${payload.url}`,
@@ -15,7 +16,7 @@ const baseQueryFunc = async (payload, api) => {
       Authorization: token ? `Bearer ${token}` : "",
       "Content-Type": payload.contentType ?? "application/json",
     },
-    withCredentials: true, // Enable credentials
+    // withCredentials: payload.requestingRefresh ? true : false,
   };
   const response = await apiHandler(requestObj);
   let responseObj = {};

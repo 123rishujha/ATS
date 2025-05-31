@@ -6,12 +6,14 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-
+  userPhoto: String,
   email: {
     type: String,
     required: true,
     unique: true,
   },
+  description: String,
+
 
   password: {
     type: String,

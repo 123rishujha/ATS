@@ -22,8 +22,16 @@ const jobseekerSlice = slice.injectEndpoints({
       }),
       providesTags: ["recruiter-job-post"],
     }),
+    updateProfile: builder.mutation({
+      query: ({ body }) => ({
+        url: "api/user/profile",
+        body: body,
+        method: "PUT",
+        msz: true,
+      }),
+    }),
   }),
 });
 
-export const { useGetAllJobPostsQuery, useGetJobPostByIdQuery } =
+export const { useGetAllJobPostsQuery, useGetJobPostByIdQuery, useUpdateProfileMutation } =
   jobseekerSlice;
