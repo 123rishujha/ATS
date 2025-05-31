@@ -6,6 +6,7 @@ import {
   Users,
   Settings,
   FileText,
+  UserCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -31,6 +32,11 @@ const RecruiterSidebar = ({ isOpen }) => {
       icon: FileText,
       path: "/recruiter/applications",
     },
+    // {
+    //   title: "Profile",
+    //   icon: UserCircle,
+    //   path: "/recruiter/profile",
+    // },
     {
       title: "Settings",
       icon: Settings,

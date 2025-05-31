@@ -3,6 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import RecruiterNavbar from "./RecruiterNavbar";
 import RecruiterSidebar from "./RecruiterSidebar";
 import JobPostMain from "./jobpost/JobPostMain";
+import Profile from "./profile/Profile";
 import ProtectedRoute from "@/utils/RouteValidation";
 
 const RecruiterRoutes = () => {
@@ -62,6 +63,7 @@ const RecruiterRoutes = () => {
             <div className="w-full max-w-7xl mx-auto">
               <Routes>
                 <Route path="/jobpost/*" element={<JobPostMain />} />
+                <Route path="/profile" element={<Profile />} />
                 <Route path="/" element={<div>Dashboard</div>} />
               </Routes>
             </div>

@@ -35,6 +35,15 @@ const recruiterJobPostSlice = slice.injectEndpoints({
       }),
       providesTags: ["recruiter-job-post"],
     }),
+    // Update recruiter profile
+    updateProfile: builder.mutation({
+      query: ({ body }) => ({
+        url: "api/user/profile",
+        body: body,
+        method: "PUT",
+        msz: true,
+      }),
+    }),
   }),
 });
 
@@ -43,4 +52,5 @@ export const {
   useGetRecruiterJobPostsQuery,
   useGetJobPostByIdQuery,
   useJobPostOperMutation,
+  useUpdateProfileMutation,
 } = recruiterJobPostSlice;
