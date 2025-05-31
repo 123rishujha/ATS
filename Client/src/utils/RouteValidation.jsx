@@ -21,10 +21,10 @@ export const PublicOnlyRoute = ({ children }) => {
   console.log("userState aaaaaa", userState);
 
   if (userState) {
-    if (userState.role === USER_ROLES.librarian) {
-      return <Navigate to={"/librarian"} />;
+    if (userState.role === USER_ROLES.recruiter) {
+      return <Navigate to={"/recruiter"} />;
     } else {
-      return <Navigate to={"/member"} />;
+      return <Navigate to={"/jobseeker"} />;
     }
   }
 

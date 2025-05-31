@@ -52,14 +52,14 @@ module.exports = {
           foreground: "#0F172A",
         },
         sidebar: {
-          DEFAULT: "#F8FAFC",
+          DEFAULT: "#94A3B8",
           foreground: "#0F172A",
           primary: "#2563EB",
           "primary-foreground": "#FFFFFF",
           accent: "#3B82F6",
           "accent-foreground": "#FFFFFF",
           border: "#E2E8F0",
-          ring: "#94A3B8",
+          ring: "#F8FAFC",
         },
       },
       borderRadius: {

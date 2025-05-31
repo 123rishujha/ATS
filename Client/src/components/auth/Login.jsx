@@ -41,7 +41,6 @@ const Login = () => {
   });
 
   const onSubmit = async ({ email, password }) => {
-    console.log("jkdf email,password", email, password);
     let res = await authFunc({
       body: { email, password },
       method: "POST",
@@ -52,8 +51,11 @@ const Login = () => {
       console.log("qqqqqqqqqqqq", user);
 
       dispatch(userLogin(user));
-
-      navigate(`${state?.pathname ? state.pathname : "/librarian"}`);
+      if (state?.pathname) {
+        navigate(`${state.pathname}`);
+      } else {
+        navigate(`/${user.role}`);
+      }
     }
   };
 

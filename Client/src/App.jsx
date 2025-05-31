@@ -10,7 +10,13 @@ import NotFound from "./components/layouts/NotFound";
 import { ToastContainer } from "react-toastify";
 import { PublicOnlyRoute } from "./utils/RouteValidation";
 
-const AuthRoutes = lazy(() => import("./routes/AuthRoutes"));
+const RecruiterRoutes = lazy(() =>
+  import("./components/recruiter/RecruiterRoutes")
+);
+const AuthRoutes = lazy(() => import("./components/auth/AuthRoutes"));
+const JobSeekerRoutes = lazy(() =>
+  import("./components/jobseeker/JobSeekerRoutes")
+);
 
 function App() {
   return (
@@ -30,8 +36,8 @@ function App() {
                 </PublicOnlyRoute>
               }
             />
-            {/* <Route path="jobseeker/*" element={<JobseekerRoutes />} /> */}
-            {/* <Route path="recruiter/*" element={<RecruiterRoutes />} /> */}
+            <Route path="jobseeker/*" element={<JobSeekerRoutes />} />
+            <Route path="recruiter/*" element={<RecruiterRoutes />} />
             <Route path="404" element={<NotFound />} />
             <Route path="*" element={<Navigate replace to="/404" />} />
           </Routes>

@@ -1,10 +1,8 @@
-import React, { lazy } from "react";
+import React, { lazy, Suspense } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
-import { Suspense } from "../components/ui/suspense";
-import Signup from "@/components/auth/signup";
-import PublicNavbar from "@/components/Navbar/PublicNavbar";
-
-const Login = lazy(() => import("../components/auth/Login"));
+import Signup from "./Signup";
+import Login from "./Login";
+import PublicNavbar from "../Navbar/PublicNavbar";
 
 function AuthRoutes() {
   return (
