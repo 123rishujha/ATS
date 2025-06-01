@@ -51,18 +51,116 @@ const createApplication = async (req, res, next) => {
 // GET ALL (admin/recruiter sees all, jobseeker sees own)
 const getAllApplications = async (req, res, next) => {
   try {
-    let query = {};
+    let matchStage = {};
     if (req.user.role === "jobseeker") {
-      query.candidateId = req.user._id;
+      matchStage.candidateId = req.user._id;
     } else if (req.user.role === "recruiter") {
       // Recruiter sees applications for their jobs
       const jobs = await JobPostModel.find(
         { recruiterId: req.user._id },
         "_id"
       );
-      query.jobId = { $in: jobs.map((j) => j._id) };
+      matchStage.jobId = { $in: jobs.map((j) => j._id) };
     }
-    const applications = await ApplicationModel.find(query);
+
+    const applications = await ApplicationModel.aggregate([
+      {
+        $match: matchStage,
+      },
+      {
+        $lookup: {
+          from: "jobposts",
+          localField: "jobId",
+          foreignField: "_id",
+          as: "job",
+        },
+      },
+      {
+        $unwind: "$job",
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "job.recruiterId",
+          foreignField: "_id",
+          as: "company",
+        },
+      },
+      {
+        $unwind: "$company",
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "candidateId",
+          foreignField: "_id",
+          as: "candidate",
+        },
+      },
+      {
+        $unwind: "$candidate",
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "interview.interviewerId",
+          foreignField: "_id",
+          as: "interviewer",
+        },
+      },
+      {
+        $unwind: {
+          path: "$interviewer",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          status: 1,
+          aiFitScore: 1,
+          createdAt: 1,
+          updatedAt: 1,
+          "job._id": 1,
+          "job.title": 1,
+          "job.company": 1,
+          "job.location": 1,
+          "job.jobType": 1,
+          "job.salaryRange": 1,
+          "job.description": 1,
+          "job.requiredSkills": 1,
+          "job.experienceRequired": 1,
+          "company._id": 1,
+          "company.name": 1,
+          "company.email": 1,
+          "company.companyName": 1,
+          "company.companyLogo": 1,
+          "company.companyWebsite": 1,
+          "company.companyDescription": 1,
+          "company.companyLocation": 1,
+          "candidate._id": 1,
+          "candidate.name": 1,
+          "candidate.email": 1,
+          "candidate.resume": 1,
+          "interview.scheduledAt": 1,
+          "interview.zoomLink": 1,
+          "interview.feedback": 1,
+          "interview.feedbackSummary": 1,
+          "interviewer._id": 1,
+          "interviewer.name": 1,
+          "interviewer.email": 1,
+          "offerLetter.url": 1,
+          "offerLetter.accepted": 1,
+          "offerLetter.respondedAt": 1,
+        },
+      },
+      {
+        $sort: {
+          createdAt: -1,
+        },
+      },
+    ]);
+
     res.json({
       success: true,
       data: applications,
