@@ -52,6 +52,14 @@ const recruiterJobPostSlice = slice.injectEndpoints({
         method: "GET",
       }),
     }),
+
+    // Get single application by jobId and candidateId
+    getRecruiterApplicationByJobAndCandidate: builder.query({
+      query: ({ jobId, candidateId }) => ({
+        url: `api/applications/job/${jobId}/candidate/${candidateId}`,
+        method: "GET",
+      }),
+    }),
   }),
 });
 
@@ -63,4 +71,5 @@ export const {
   useUpdateProfileMutation,
   useGetApplicationsByJobIdMutation,
   useGetUserByIdQuery,
+  useGetRecruiterApplicationByJobAndCandidateQuery,
 } = recruiterJobPostSlice;

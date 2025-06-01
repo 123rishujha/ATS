@@ -177,7 +177,7 @@ const Candidates = () => {
               size="icon"
               onClick={() => {
                 navigate(`${row.original?.candidate?._id}`, {
-                  state: row.original,
+                  state: { jobId: row.original.job?._id },
                 });
               }}
             >

@@ -16,32 +16,35 @@ const RecruiterSidebar = ({ isOpen }) => {
       title: "Dashboard",
       icon: LayoutDashboard,
       path: "/recruiter",
+      matchString: "recruiter",
     },
     {
       title: "Job Posts",
       icon: Briefcase,
       path: "/recruiter/jobpost",
+      matchString: "jobpost",
     },
     {
       title: "Candidates",
       icon: Users,
       path: "/recruiter/candidates",
+      matchString: "candidates",
     },
-    {
-      title: "Applications",
-      icon: FileText,
-      path: "/recruiter/applications",
-    },
+    // {
+    //   title: "Applications",
+    //   icon: FileText,
+    //   path: "/recruiter/applications",
+    // },
     // {
     //   title: "Profile",
     //   icon: UserCircle,
     //   path: "/recruiter/profile",
     // },
-    {
-      title: "Settings",
-      icon: Settings,
-      path: "/recruiter/settings",
-    },
+    // {
+    //   title: "Settings",
+    //   icon: Settings,
+    //   path: "/recruiter/settings",
+    // },
   ];
 
   return (
