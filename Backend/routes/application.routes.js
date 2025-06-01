@@ -7,6 +7,7 @@ const {
   getApplicationById,
   updateApplication,
   getApplicationMatchScore,
+  getApplicationsByJobId,
 } = require("../controllers/application.controllers");
 
 applicationRouter.use(authMiddleware);
@@ -21,5 +22,8 @@ applicationRouter.get("/:id", getApplicationById);
 applicationRouter.put("/:id", updateApplication);
 
 applicationRouter.post("/fit-score", getApplicationMatchScore);
+
+// Get applications by jobId (recruiter only)
+applicationRouter.post("/by-job", getApplicationsByJobId);
 
 module.exports = { applicationRouter };

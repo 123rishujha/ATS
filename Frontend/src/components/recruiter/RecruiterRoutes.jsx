@@ -4,6 +4,7 @@ import RecruiterNavbar from "./RecruiterNavbar";
 import RecruiterSidebar from "./RecruiterSidebar";
 import JobPostMain from "./jobpost/JobPostMain";
 import Profile from "./profile/Profile";
+import Candidates from "./candidates/Candidates";
 import ProtectedRoute from "@/utils/RouteValidation";
 
 const RecruiterRoutes = () => {
@@ -65,6 +66,7 @@ const RecruiterRoutes = () => {
                 <Route path="/jobpost/*" element={<JobPostMain />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/" element={<div>Dashboard</div>} />
+                <Route path="/candidates" element={<Candidates />} />
               </Routes>
             </div>
           </div>

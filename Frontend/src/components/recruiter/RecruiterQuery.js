@@ -44,6 +44,14 @@ const recruiterJobPostSlice = slice.injectEndpoints({
         msz: true,
       }),
     }),
+    // Get applications by jobId
+    getApplicationsByJobId: builder.mutation({
+      query: (body) => ({
+        url: "api/applications/by-job",
+        method: "POST",
+        body,
+      }),
+    }),
   }),
 });
 
@@ -53,4 +61,5 @@ export const {
   useGetJobPostByIdQuery,
   useJobPostOperMutation,
   useUpdateProfileMutation,
+  useGetApplicationsByJobIdMutation,
 } = recruiterJobPostSlice;

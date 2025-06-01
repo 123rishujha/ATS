@@ -1,5 +1,10 @@
 import React, { useMemo, useCallback, useEffect } from "react";
-import { createEditor, Editor } from "slate";
+import {
+  createEditor,
+  Editor,
+  Transforms,
+  Element as SlateElement,
+} from "slate";
 import { Slate, Editable, withReact } from "slate-react";
 import { withHistory } from "slate-history";
 import { Bold, Italic, List, ListOrdered, Heading2 } from "lucide-react";
@@ -18,6 +23,98 @@ const RichTextEditor = ({
   placeholder = "Write something...",
 }) => {
   const editor = useMemo(() => withHistory(withReact(createEditor())), []);
+
+  // Custom paste handler
+  const handlePaste = useCallback(
+    (event) => {
+      const text =
+        event.clipboardData.getData("text/html") ||
+        event.clipboardData.getData("text/plain");
+
+      // Prevent default paste
+      event.preventDefault();
+
+      // Parse the pasted content
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(text, "text/html");
+
+      // Convert HTML to Slate nodes
+      const fragment = [];
+      doc.body.childNodes.forEach((node) => {
+        if (node.nodeName === "P") {
+          fragment.push({
+            type: "paragraph",
+            children: [{ text: node.textContent }],
+          });
+        } else if (node.nodeName === "H1" || node.nodeName === "H2") {
+          fragment.push({
+            type: "heading-two",
+            children: [{ text: node.textContent }],
+          });
+        } else if (node.nodeName === "UL") {
+          const listItems = Array.from(node.childNodes).map((li) => ({
+            type: "list-item",
+            children: [{ text: li.textContent }],
+          }));
+          fragment.push({
+            type: "bulleted-list",
+            children: listItems,
+          });
+        } else if (node.nodeName === "OL") {
+          const listItems = Array.from(node.childNodes).map((li) => ({
+            type: "list-item",
+            children: [{ text: li.textContent }],
+          }));
+          fragment.push({
+            type: "numbered-list",
+            children: listItems,
+          });
+        } else {
+          fragment.push({
+            type: "paragraph",
+            children: [{ text: node.textContent }],
+          });
+        }
+      });
+
+      // Insert the fragment at the current selection
+      Transforms.insertFragment(editor, fragment);
+    },
+    [editor]
+  );
+
+  // Custom key handler for backspace
+  const handleKeyDown = useCallback(
+    (event) => {
+      if (event.key === "Backspace") {
+        const { selection } = editor;
+
+        if (selection && selection.focus.offset === 0) {
+          const [node] = Editor.node(editor, selection.focus.path);
+
+          // Handle backspace at the start of a list item
+          if (node.type === "list-item") {
+            event.preventDefault();
+            Editor.unwrapNodes(editor, {
+              match: (n) =>
+                n.type === "bulleted-list" || n.type === "numbered-list",
+              split: true,
+            });
+            Editor.setNodes(editor, { type: "paragraph" });
+            return;
+          }
+
+          // Handle backspace at the start of a heading
+          if (node.type === "heading-two") {
+            event.preventDefault();
+            Editor.setNodes(editor, { type: "paragraph" });
+            return;
+          }
+        }
+      }
+    },
+    [editor]
+  );
 
   // Log the incoming value prop whenever it changes
   useEffect(() => {
@@ -181,6 +278,8 @@ const RichTextEditor = ({
           renderLeaf={renderLeaf}
           placeholder={placeholder}
           className="p-4 min-h-[200px] prose prose-sm max-w-none focus:outline-none"
+          onPaste={handlePaste}
+          onKeyDown={handleKeyDown}
         />
       </Slate>
     </div>

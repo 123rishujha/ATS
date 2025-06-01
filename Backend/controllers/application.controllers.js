@@ -1,6 +1,7 @@
 const { ApplicationModel } = require("../models/application.model");
 const { JobPostModel } = require("../models/jobpost.model");
 const { getFitScore } = require("../utils/getFitScore");
+const mongoose = require("mongoose");
 
 // CREATE
 const createApplication = async (req, res, next) => {
@@ -252,10 +253,125 @@ const getApplicationMatchScore = async (req, res, next) => {
   }
 };
 
+const getApplicationsByJobId = async (req, res, next) => {
+  try {
+    const { jobId, status, startDate, endDate } = req.body;
+    const recruiterId = req.user._id;
+
+    const matchStage = {
+      jobId: new mongoose.Types.ObjectId(jobId),
+      "job.recruiterId": new mongoose.Types.ObjectId(recruiterId),
+    };
+
+    // Add optional filters
+    if (status && status !== "") {
+      matchStage.status = status;
+    }
+
+    if (startDate || endDate) {
+      matchStage.createdAt = {};
+      if (startDate) {
+        matchStage.createdAt.$gte = new Date(startDate);
+      }
+      if (endDate) {
+        matchStage.createdAt.$lte = new Date(endDate);
+      }
+    }
+
+    const applications = await ApplicationModel.aggregate([
+      {
+        $lookup: {
+          from: "jobposts",
+          localField: "jobId",
+          foreignField: "_id",
+          as: "job",
+        },
+      },
+      {
+        $unwind: "$job",
+      },
+      {
+        $match: matchStage,
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "candidateId",
+          foreignField: "_id",
+          as: "candidate",
+        },
+      },
+      {
+        $unwind: "$candidate",
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "interview.interviewerId",
+          foreignField: "_id",
+          as: "interviewer",
+        },
+      },
+      {
+        $unwind: {
+          path: "$interviewer",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          status: 1,
+          aiFitScore: 1,
+          createdAt: 1,
+          updatedAt: 1,
+          "job._id": 1,
+          "job.title": 1,
+          "job.company": 1,
+          "job.location": 1,
+          "job.jobType": 1,
+          "job.salaryRange": 1,
+          "job.description": 1,
+          "job.requiredSkills": 1,
+          "job.experienceRequired": 1,
+          "candidate._id": 1,
+          "candidate.name": 1,
+          "candidate.email": 1,
+          "candidate.resume": 1,
+          "interview.scheduledAt": 1,
+          "interview.zoomLink": 1,
+          "interview.feedback": 1,
+          "interview.feedbackSummary": 1,
+          "interviewer._id": 1,
+          "interviewer.name": 1,
+          "interviewer.email": 1,
+          "offerLetter.url": 1,
+          "offerLetter.accepted": 1,
+          "offerLetter.respondedAt": 1,
+        },
+      },
+      {
+        $sort: {
+          createdAt: -1,
+        },
+      },
+    ]);
+
+    res.json({
+      success: true,
+      data: applications,
+      msg: "Applications Fetched Successfully!",
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   createApplication,
   getAllApplications,
   getApplicationById,
   updateApplication,
   getApplicationMatchScore,
+  getApplicationsByJobId,
 };

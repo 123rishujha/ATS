@@ -1,13 +1,5 @@
 import React from "react";
 import { Plus, Pencil, Eye } from "lucide-react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,6 +9,8 @@ import {
   useJobPostOperMutation,
 } from "../RecruiterQuery";
 import { toast } from "sonner";
+import DataTable from "@/utils/DataTable";
+import { formatSalary } from "@/utils/formatSalary";
 
 const JobPostTable = () => {
   const navigate = useNavigate();
@@ -62,29 +56,91 @@ const JobPostTable = () => {
     navigate(`view/${id}`);
   };
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
+  const columns = [
+    {
+      accessorKey: "title",
+      header: "Title",
+      cell: ({ row }) => (
+        <div className="font-medium">{row.original.title}</div>
+      ),
+    },
+    {
+      accessorKey: "location",
+      header: "Location",
+    },
+    {
+      accessorKey: "jobType",
+      header: "Job Type",
+      cell: ({ row }) => (
+        <Badge className={getJobTypeColor(row.original.jobType)}>
+          {row.original.jobType.charAt(0).toUpperCase() +
+            row.original.jobType.slice(1)}
+        </Badge>
+      ),
+    },
+    {
+      accessorKey: "salaryRange",
+      header: "Salary Range",
+      cell: ({ row }) =>
+        row.original.salaryRange
+          ? `${formatSalary(
+              row.original.salaryRange.min,
+              row.original.salaryRange.max
+            )}`
+          : "Not specified",
+    },
+    {
+      accessorKey: "experienceRequired",
+      header: "Experience",
+      cell: ({ row }) =>
+        row.original.experienceRequired
+          ? `${row.original.experienceRequired.min} - ${row.original.experienceRequired.max} years`
+          : "Not specified",
+    },
+    {
+      accessorKey: "isPublished",
+      header: "Status",
+      cell: ({ row }) => (
+        <div
+          onClick={() => handleTogglePublished(row.original)}
+          className="cursor-pointer"
+        >
+          <Badge variant={row.original.isPublished ? "default" : "secondary"}>
+            {row.original.isPublished ? "Published" : "Draft"}
+          </Badge>
+        </div>
+      ),
+    },
+    {
+      accessorKey: "applicantsCount",
+      header: "Applicants",
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => (
+        <div className="flex space-x-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => handleView(row.original._id)}
+          >
+            <Eye className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => handleEdit(row.original._id)}
+          >
+            <Pencil className="h-4 w-4" />
+          </Button>
+        </div>
+      ),
+    },
+  ];
 
   if (isError) {
     return <div>Error loading job posts.</div>;
-  }
-
-  if (jobPosts.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center h-[60vh]">
-        <div className="text-center space-y-4">
-          <h2 className="text-2xl font-semibold">No job posts available</h2>
-          <p className="text-muted-foreground">
-            Create your first job post to get started
-          </p>
-          <Button size="lg" className="mt-4" onClick={() => navigate("form")}>
-            <Plus className="mr-2 h-4 w-4" />
-            Create Job Post
-          </Button>
-        </div>
-      </div>
-    );
   }
 
   return (
@@ -97,70 +153,32 @@ const JobPostTable = () => {
         </Button>
       </CardHeader>
       <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Title</TableHead>
-              <TableHead>Location</TableHead>
-              <TableHead>Job Type</TableHead>
-              <TableHead>Salary Range</TableHead>
-              <TableHead>Experience</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Applicants</TableHead>
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {jobPosts.map((job) => (
-              <TableRow key={job._id}>
-                <TableCell className="font-medium">{job.title}</TableCell>
-                <TableCell>{job.location}</TableCell>
-                <TableCell>
-                  <Badge className={getJobTypeColor(job.jobType)}>
-                    {job.jobType.charAt(0).toUpperCase() + job.jobType.slice(1)}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  {job.salaryRange
-                    ? `$${job.salaryRange.min} - $${job.salaryRange.max}`
-                    : "Not specified"}
-                </TableCell>
-                <TableCell>
-                  {job.experienceRequired
-                    ? `${job.experienceRequired.min} - ${job.experienceRequired.max} years`
-                    : "Not specified"}
-                </TableCell>
-                <TableCell
-                  onClick={() => handleTogglePublished(job)}
-                  className="cursor-pointer"
-                >
-                  <Badge variant={job.isPublished ? "default" : "secondary"}>
-                    {job.isPublished ? "Published" : "Draft"}
-                  </Badge>
-                </TableCell>
-                <TableCell>{job.applicantsCount}</TableCell>
-                <TableCell>
-                  <div className="flex space-x-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleView(job._id)}
-                    >
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleEdit(job._id)}
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        {jobPosts.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-[60vh]">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl font-semibold">No job posts available</h2>
+              <p className="text-muted-foreground">
+                Create your first job post to get started
+              </p>
+              <Button
+                size="lg"
+                className="mt-4"
+                onClick={() => navigate("form")}
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Create Job Post
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <DataTable
+            columns={columns}
+            data={jobPosts}
+            searchKey="title"
+            searchPlaceholder="Search job posts..."
+            isLoading={isLoading}
+          />
+        )}
       </CardContent>
     </Card>
   );

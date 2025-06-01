@@ -281,7 +281,7 @@ const JobPostForm = () => {
 
             <div className={`grid grid-cols-1 md:grid-cols-2 gap-6`}>
               <div className="space-y-4 w-full">
-                <FormLabel>Salary Range(In LPA)</FormLabel>
+                <FormLabel>Salary Range(Anually)</FormLabel>
                 <div className="grid grid-cols-2 gap-4">
                   <FormField
                     control={form.control}

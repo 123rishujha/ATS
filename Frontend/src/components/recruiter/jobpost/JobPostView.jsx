@@ -26,7 +26,7 @@ const JobPostView = () => {
     return <div>Error loading job post.</div>;
   }
 
-  const jobPost = jobPostData?.data;
+  const jobPost = jobPostData?.data || {};
 
   const getJobTypeColor = (type) => {
     const colors = {
