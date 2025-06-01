@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft } from "lucide-react";
+import ViewOnlyEditor from "@/components/common/ViewOnlyEditor";
 
 const JobPostView = () => {
   const { id } = useParams();
@@ -113,7 +114,8 @@ const JobPostView = () => {
         <div>
           <h3 className="text-lg font-semibold mb-2">Job Description</h3>
           <div className="prose prose-sm max-w-none">
-            {renderDescription(jobPost.description)}
+            {/* {renderDescription(jobPost.description)} */}
+            <ViewOnlyEditor documentData={jobPost.description} />
           </div>
         </div>
 

@@ -5,11 +5,11 @@ const jobseekerSlice = slice.injectEndpoints({
     // Get all job posts
     getAllJobPosts: builder.query({
       query: () => {
-        console.log("ajldf callled")
+        console.log("ajldf callled");
         return {
           url: "api/jobposts/",
           method: "GET",
-        }
+        };
       },
       providesTags: ["recruiter-job-post"],
       transformResponse: (res) => {
@@ -35,8 +35,21 @@ const jobseekerSlice = slice.injectEndpoints({
         msz: true,
       }),
     }),
+
+    getApplicationMatchScore: builder.mutation({
+      query: ({ body }) => ({
+        url: "api/applications/fit-score",
+        method: "POST",
+        body: body,
+        msz: false,
+      }),
+    }),
   }),
 });
 
-export const { useGetAllJobPostsQuery, useGetJobPostByIdQuery, useUpdateProfileMutation } =
-  jobseekerSlice;
+export const {
+  useGetAllJobPostsQuery,
+  useGetJobPostByIdQuery,
+  useUpdateProfileMutation,
+  useGetApplicationMatchScoreMutation,
+} = jobseekerSlice;

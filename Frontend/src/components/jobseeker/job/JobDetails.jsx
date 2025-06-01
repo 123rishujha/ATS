@@ -1,20 +1,86 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useGetJobPostByIdQuery } from "../JobSeekerQuery";
+import {
+  useGetApplicationMatchScoreMutation,
+  useGetJobPostByIdQuery,
+} from "../JobSeekerQuery";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Briefcase, MapPin, Wallet, Target } from "lucide-react";
+import { formatSalary } from "@/utils/formatSalary";
+import { Progress } from "@/components/ui/progress";
+import ViewOnlyEditor from "@/components/common/ViewOnlyEditor";
+// import { Plain } from "slate";
+// import Plain from "slate-plain-serializer";
+import { Node } from "slate";
+import { useSelector } from "react-redux";
+import EnhancedProgressBar from "./MatchScore";
 
 const JobDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [matchScore, setMatchScore] = useState(0);
+  const { userState } = useSelector((state) => state.user);
+
   const {
     data: jobPost,
     isLoading,
     isError,
     error,
   } = useGetJobPostByIdQuery(id);
+
+  const [getApplicationMatchScore, { isLoading: isMatchScoreLoading }] =
+    useGetApplicationMatchScoreMutation();
+
+  useEffect(() => {
+    if (jobPost?.description && userState?.resume?.url) {
+      getMatchScore();
+    }
+  }, [jobPost]);
+
+  const getMatchScore = async () => {
+    const plainTextDescription = slateToPlainText(jobPost?.description);
+
+    // Create salary range string
+    const salaryRangeText = jobPost?.salaryRange
+      ? `Salary Range: ${jobPost.salaryRange.min} - ${jobPost.salaryRange.max}`
+      : "";
+
+    // Create experience required string
+    const experienceText = jobPost?.experienceRequired
+      ? `Experience Required: ${jobPost.experienceRequired.min} - ${jobPost.experienceRequired.max} years`
+      : "";
+
+    // Create required skills string
+    const skillsText = jobPost?.requiredSkills?.length
+      ? `Required Skills: ${jobPost.requiredSkills.join(", ")}`
+      : "";
+
+    // Create job title string
+    const titleText = jobPost?.title ? `Job Title: ${jobPost.title}` : "";
+
+    // Combine all parts into one string
+    const combinedJobDescription = [
+      titleText,
+      salaryRangeText,
+      experienceText,
+      skillsText,
+      plainTextDescription,
+    ]
+      .filter((text) => text.trim() !== "") // Remove empty strings
+      .join("\n\n"); // Join with double line breaks for readability
+
+    const res = await getApplicationMatchScore({
+      body: {
+        resumeUrl: userState?.resume?.url,
+        jobDescription: combinedJobDescription, // Use the combined string here
+      },
+    });
+    if (res?.data) {
+      setMatchScore(res?.data?.data || 0);
+    }
+  };
 
   const getJobTypeColor = (jobType) => {
     switch (jobType) {
@@ -33,29 +99,17 @@ const JobDetails = () => {
     }
   };
 
-  const renderDescription = (description) => {
-    if (!description) return null;
-    // Assuming description is an array of objects like Slate's value
-    return description.map((node, index) => {
-      if (node.type === "paragraph") {
-        return (
-          <p key={index} className="mb-4">
-            {node.children.map((child, childIndex) => {
-              let content = child.text;
-              if (child.bold) {
-                content = <strong key={childIndex}>{content}</strong>;
-              }
-              if (child.italic) {
-                content = <em key={childIndex}>{content}</em>;
-              }
-              return content;
-            })}
-          </p>
-        );
-      }
-      // Add handling for other node types if necessary
-      return null; // Or a default rendering
-    });
+  const getMatchScoreColor = (score) => {
+    if (score >= 80) return "text-green-600";
+    if (score >= 60) return "text-yellow-600";
+    return "text-red-600";
+  };
+
+  const slateToPlainText = (nodes) => {
+    return nodes
+      .filter((el) => Node.string(el))
+      .map((node) => Node.string(node))
+      .join("\n");
   };
 
   if (isLoading) {
@@ -80,46 +134,100 @@ const JobDetails = () => {
         <ArrowLeft className="mr-2 h-4 w-4" /> Back to Listings
       </Button>
 
+      <div className="w-[100%]">
+        {/* <div className="flex justify-center items-center gap-2 w-[100%]">
+          <Target className={`h-4 w-4 ${getMatchScoreColor(matchScore)}`} />
+          <span
+            className={`text-lg font-medium ${getMatchScoreColor(matchScore)}`}
+          >
+            Match Score: {isMatchScoreLoading ? "Loading.." : `${matchScore}%`}
+          </span>
+        </div>
+        <Progress value={matchScore} className="w-full" /> */}
+        <EnhancedProgressBar
+          matchScore={matchScore}
+          isMatchScoreLoading={isMatchScoreLoading}
+          animationDuration={1500}
+          animationDelay={300}
+        />
+      </div>
       <Card>
         <CardHeader>
           <div className="flex items-start justify-between">
-            <CardTitle className="text-3xl font-bold">
-              {jobPost.title}
-            </CardTitle>
+            <div className="space-y-2">
+              <CardTitle className="text-3xl font-bold">
+                {jobPost.title}
+              </CardTitle>
+            </div>
             <Badge className={getJobTypeColor(jobPost.jobType)}>
               {jobPost.jobType}
             </Badge>
           </div>
-          <div className="flex items-center gap-4 text-muted-foreground">
-            <span>{jobPost.location}</span>
+          <div className="flex items-center gap-8 text-muted-foreground flex-wrap">
+            <div className="text-center">
+              <div className="flex items-center gap-2 text-sm text-slate-800">
+                <MapPin className="h-4 w-4 flex-shrink-0" />
+                <span className="truncate">{jobPost.location}</span>
+              </div>
+              <p className="text-xs text-slate-500">Location</p>
+            </div>
             <span>|</span>
-            <span>Salary: {jobPost.salaryRange.min-jobPost.salaryRange.max}</span>
+
+            <div className="text-center">
+              <div className="flex items-center gap-2 text-slate-600 mb-1">
+                <Wallet className="h-4 w-4 text-green-600" />
+                <span className="font-semibold text-slate-800 text-sm">
+                  {formatSalary(
+                    jobPost.salaryRange.min,
+                    jobPost.salaryRange.max
+                  )}
+                </span>
+              </div>
+              <p className="text-xs text-slate-500">Salary/Anually</p>
+            </div>
+
+            <span>|</span>
+
+            <div className="text-center">
+              <div className="flex items-center gap-2 text-slate-600 mb-1">
+                <Briefcase className="h-4 w-4 text-blue-600" />
+                <span className="font-semibold text-slate-800 text-sm">
+                  {jobPost.experienceRequired.min}-
+                  {jobPost.experienceRequired.max} yrs
+                </span>
+              </div>
+              <p className="text-xs text-slate-500">Experience</p>
+            </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
           <div>
-            <h3 className="text-lg font-semibold">Description</h3>
+            <h3 className="text-lg font-semibold mb-4">Description</h3>
             <div className="mt-2 text-gray-700">
               {/* {renderDescription(jobPost.description)} */}
+              <ViewOnlyEditor documentData={jobPost.description} />
             </div>
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold">Requirements</h3>
-            <p className="mt-2 text-gray-700">
-              Experience: {jobPost.experienceRequired.min-jobPost.experienceRequired.max}
-            </p>
-            <div className="mt-2">
-              <h4 className="text-md font-semibold">Required Skills:</h4>
-              <ul className="list-disc list-inside ml-4 mt-1 text-gray-700">
+            <div className="mt-4">
+              <h4 className="text-md font-semibold mb-2">Required Skills:</h4>
+              <div className="flex flex-wrap gap-2">
                 {jobPost.requiredSkills &&
                   jobPost.requiredSkills.map((skill, index) => (
-                    <li key={index}>{skill}</li>
+                    <Badge key={index} variant="secondary">
+                      {skill}
+                    </Badge>
                   ))}
-              </ul>
+              </div>
             </div>
           </div>
-          {/* Add Apply button here later */}
+
+          <div className="pt-4">
+            <Button className="w-full sm:w-auto" size="lg">
+              Apply Now
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>

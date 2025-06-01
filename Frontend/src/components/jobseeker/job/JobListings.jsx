@@ -209,7 +209,7 @@ const JobListings = () => {
                 <div className="hidden lg:flex items-center justify-between gap-6 cursor-pointer">
                   {/* Left Section - Job Info */}
                   <div className="flex-1 space-y-3 min-w-0">
-                    <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-end justify-between gap-4">
                       <div className="space-y-1 min-w-0">
                         <h3 className="text-xl font-semibold text-slate-800 group-hover:text-blue-600 transition-colors truncate">
                           {job.title}
