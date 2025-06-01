@@ -11,14 +11,7 @@ const recruiterJobPostSlice = slice.injectEndpoints({
       }),
       invalidatesTags: ["recruiter-job-post"],
     }),
-    // Get all job posts
-    // getAllJobPosts: builder.query({
-    //   query: () => ({
-    //     url: "api/jobposts/",
-    //     method: "GET",
-    //   }),
-    //   providesTags: ["recruiter-job-post"],
-    // }),
+
     // Get job posts for the logged-in recruiter
     getRecruiterJobPosts: builder.query({
       query: () => ({
@@ -52,6 +45,13 @@ const recruiterJobPostSlice = slice.injectEndpoints({
         body,
       }),
     }),
+
+    getUserById: builder.query({
+      query: (candidateId) => ({
+        url: `api/user/profile/${candidateId}`,
+        method: "GET",
+      }),
+    }),
   }),
 });
 
@@ -62,4 +62,5 @@ export const {
   useJobPostOperMutation,
   useUpdateProfileMutation,
   useGetApplicationsByJobIdMutation,
+  useGetUserByIdQuery,
 } = recruiterJobPostSlice;

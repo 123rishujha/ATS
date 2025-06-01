@@ -46,11 +46,11 @@ const jobseekerSlice = slice.injectEndpoints({
     }),
 
     jobApplicationOper: builder.mutation({
-      query: ({ body, url, method }) => ({
+      query: ({ body, url, method, msz }) => ({
         url: `api/applications${url ? url : ""}`,
         body: body,
         method: method,
-        msz: true,
+        msz: msz ?? true,
       }),
       invalidatesTags: ["seeker-job-application"],
     }),

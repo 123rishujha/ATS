@@ -92,7 +92,6 @@ const logoutController = async (req, res, next) => {
   res.status(200).json({ success: true, msg: "Logout successful", user });
 };
 
-
 // GET SINGLE USER
 const getUser = async (req, res, next) => {
   const userId = req.params.userId || req.user._id;
@@ -114,14 +113,13 @@ const getUser = async (req, res, next) => {
 
     res.json({
       success: true,
-      user: userFound,
+      data: userFound,
     });
   } catch (err) {
     console.log("Error in getUser:", err);
     return next(err);
   }
 };
-
 
 // UPDATE PROFILE
 const updateProfile = async (req, res, next) => {
@@ -139,11 +137,11 @@ const updateProfile = async (req, res, next) => {
       user.name = req.body.name;
     }
 
-    if(req.body.userPhoto){
+    if (req.body.userPhoto) {
       user.userPhoto = req.body.userPhoto;
     }
 
-    if(req.body.description){
+    if (req.body.description) {
       user.description = req.body.description;
     }
 
@@ -155,8 +153,8 @@ const updateProfile = async (req, res, next) => {
         if (!user.resume) user.resume = {};
         Object.assign(user.resume, req.body.resume);
         // Always set uploadedAt if not provided
-        // if (!user.resume.uploadedAt) 
-        user.resume.uploadedAt = (new Date()).toISOString();
+        // if (!user.resume.uploadedAt)
+        user.resume.uploadedAt = new Date().toISOString();
       }
       if (req.body.jobPreferences) {
         if (!user.jobPreferences) user.jobPreferences = {};
@@ -179,7 +177,9 @@ const updateProfile = async (req, res, next) => {
 
     // Format date fields as ISO 8601
     if (updatedUser.resume && updatedUser.resume.uploadedAt) {
-      updatedUser.resume.uploadedAt = new Date(updatedUser.resume.uploadedAt).toISOString();
+      updatedUser.resume.uploadedAt = new Date(
+        updatedUser.resume.uploadedAt
+      ).toISOString();
     }
     if (updatedUser.createdAt) {
       updatedUser.createdAt = new Date(updatedUser.createdAt).toISOString();
@@ -196,7 +196,7 @@ const updateProfile = async (req, res, next) => {
     res.json({
       success: true,
       msg: "Profile updated successfully",
-      data: {...updatedUser,token},
+      data: { ...updatedUser, token },
     });
   } catch (err) {
     console.log("Error in updateProfile:", err);

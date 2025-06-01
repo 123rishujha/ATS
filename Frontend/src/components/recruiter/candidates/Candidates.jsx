@@ -22,12 +22,13 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { format } from "date-fns";
-import { CalendarIcon, FileDown } from "lucide-react";
+import { CalendarIcon, Eye, FileDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useGetRecruiterJobPostsQuery } from "../RecruiterQuery";
 import { useGetApplicationsByJobIdMutation } from "../RecruiterQuery";
 import { Badge } from "@/components/ui/badge";
 import DataTable from "@/utils/DataTable";
+import { useNavigate } from "react-router-dom";
 
 const Candidates = () => {
   const { data: jobPosts, isLoading: isLoadingJobPosts } =
@@ -50,6 +51,8 @@ const Candidates = () => {
     startDate: null,
     endDate: null,
   });
+
+  const navigate = useNavigate();
 
   const handleJobChange = (jobId) => {
     setSelectedJob(jobId);
@@ -159,15 +162,28 @@ const Candidates = () => {
         id: "actions",
         header: "Resume",
         cell: ({ row }) => (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() =>
-              window.open(row.original?.candidate?.resume?.url, "_blank")
-            }
-          >
-            <FileDown className="h-4 w-4" />
-          </Button>
+          <div className="flex gap-2 items-center">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() =>
+                window.open(row.original?.candidate?.resume?.url, "_blank")
+              }
+            >
+              <FileDown className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {
+                navigate(`${row.original?.candidate?._id}`, {
+                  state: row.original,
+                });
+              }}
+            >
+              <Eye className="h-4 w-4" />
+            </Button>
+          </div>
         ),
       },
     ],
