@@ -44,6 +44,29 @@ const jobseekerSlice = slice.injectEndpoints({
         msz: false,
       }),
     }),
+
+    jobApplicationOper: builder.mutation({
+      query: ({ body, url, method }) => ({
+        url: `api/applications${url ? url : ""}`,
+        body: body,
+        method: method,
+        msz: true,
+      }),
+      invalidatesTags: ["seeker-job-application"],
+    }),
+    //Get all job applications
+    getAllJobApp: builder.query({
+      query: (args) => {
+        return {
+          url: `api/applications${args ? args : ""}`,
+          method: "GET",
+        };
+      },
+      providesTags: ["seeker-job-application"],
+      transformResponse: (res) => {
+        return res.data || [];
+      },
+    }),
   }),
 });
 
@@ -52,4 +75,6 @@ export const {
   useGetJobPostByIdQuery,
   useUpdateProfileMutation,
   useGetApplicationMatchScoreMutation,
+  useJobApplicationOperMutation,
+  useGetAllJobAppQuery,
 } = jobseekerSlice;

@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import {
   useGetApplicationMatchScoreMutation,
   useGetJobPostByIdQuery,
+  useJobApplicationOperMutation,
 } from "../JobSeekerQuery";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -32,6 +33,8 @@ const JobDetails = () => {
 
   const [getApplicationMatchScore, { isLoading: isMatchScoreLoading }] =
     useGetApplicationMatchScoreMutation();
+
+  const [applyAPI, { isLoading: isApplying }] = useJobApplicationOperMutation();
 
   useEffect(() => {
     if (jobPost?.description && userState?.resume?.url) {
@@ -99,17 +102,24 @@ const JobDetails = () => {
     }
   };
 
-  const getMatchScoreColor = (score) => {
-    if (score >= 80) return "text-green-600";
-    if (score >= 60) return "text-yellow-600";
-    return "text-red-600";
-  };
-
   const slateToPlainText = (nodes) => {
     return nodes
       .filter((el) => Node.string(el))
       .map((node) => Node.string(node))
       .join("\n");
+  };
+
+  const handleApply = async () => {
+    const res = await applyAPI({
+      body: {
+        jobId: jobPost._id,
+        aiFitScore: matchScore,
+      },
+      method: "POST",
+    });
+    if (res?.data?.status_code === 200 || res?.data?.status_code === 201) {
+      navigate("/jobseeker/applications");
+    }
   };
 
   if (isLoading) {
@@ -224,8 +234,13 @@ const JobDetails = () => {
           </div>
 
           <div className="pt-4">
-            <Button className="w-full sm:w-auto" size="lg">
-              Apply Now
+            <Button
+              className="w-full sm:w-auto"
+              size="lg"
+              disabled={isApplying}
+              onClick={() => handleApply()}
+            >
+              {isApplying ? "Applying..." : "Apply Now"}
             </Button>
           </div>
         </CardContent>

@@ -1,17 +1,15 @@
 import React from "react";
-import { useGetAllJobAppQuery } from "../JobSeekerQuery";
+import { useGetAllJobAppQuery } from "./JobSeekerQuery";
+import DataTable from "@/utils/DataTable";
 import { Badge } from "@/components/ui/badge";
-import { format } from "date-fns";
+import { format, isValid, parseISO } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Eye } from "lucide-react";
-import DataTable from "@/utils/DataTable";
 
 const Applications = () => {
   const navigate = useNavigate();
   const { data: applications, isLoading } = useGetAllJobAppQuery();
-
-  console.log("ajldf applications", applications);
 
   const getStatusColor = (status) => {
     switch (status.toLowerCase()) {
@@ -28,13 +26,23 @@ const Applications = () => {
     }
   };
 
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    try {
+      const date = parseISO(dateString);
+      return isValid(date) ? format(date, "MMM dd, yyyy") : "Invalid Date";
+    } catch (error) {
+      return "Invalid Date";
+    }
+  };
+
   const columns = [
     {
       accessorKey: "job.title",
       header: "Job Title",
     },
     {
-      accessorKey: "company.name",
+      accessorKey: "job.company",
       header: "Company",
     },
     {
@@ -42,7 +50,7 @@ const Applications = () => {
       header: "Match Score",
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
-          <span>{row.original.aiFitScore}%</span>
+          <span>{row.original.aiFitScore || 0}%</span>
         </div>
       ),
     },
@@ -58,9 +66,7 @@ const Applications = () => {
     {
       accessorKey: "createdAt",
       header: "Applied Date",
-      cell: ({ row }) => (
-        <div>{format(new Date(row.original.createdAt), "MMM dd, yyyy")}</div>
-      ),
+      cell: ({ row }) => <div>{formatDate(row.original.createdAt)}</div>,
     },
     {
       id: "actions",
@@ -85,7 +91,7 @@ const Applications = () => {
       <h1 className="text-2xl font-bold mb-6">My Applications</h1>
       <DataTable
         columns={columns}
-        data={applications || []}
+        data={applications?.data || []}
         searchKey="job.title"
         searchPlaceholder="Search by job title..."
       />
