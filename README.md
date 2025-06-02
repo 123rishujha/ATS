@@ -92,7 +92,6 @@ The system leverages OpenAI's GPT models to provide the following AI-powered fea
 ### 3. Automated Resume Parsing
 
 - Extracts relevant information from uploaded resumes including skills, experience, and education.
-- Organizes candidate data for efficient searching and filtering.
 
 ## 🔧 Tech Stack
 
