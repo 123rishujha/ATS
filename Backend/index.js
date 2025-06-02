@@ -10,6 +10,7 @@ const { jobPostRouter } = require("./routes/jobpost.routes");
 const { awsRouter } = require("./routes/aws.routes");
 const { applicationRouter } = require("./routes/application.routes");
 const { authMiddleware } = require("./middlewares/authMiddleware");
+const dashboardRouter = require("./routes/dashboard.routes");
 
 const app = express();
 
@@ -32,6 +33,7 @@ app.get("/", (req, res) => {
 app.use("/api/user", userRouter);
 app.use("/api/jobposts", jobPostRouter);
 app.use("/api/applications", applicationRouter);
+app.use("/api/dashboard", dashboardRouter);
 
 app.use("/api", awsRouter);
 

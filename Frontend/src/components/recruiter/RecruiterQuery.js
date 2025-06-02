@@ -60,6 +60,13 @@ const recruiterJobPostSlice = slice.injectEndpoints({
         method: "GET",
       }),
     }),
+
+    getRecruiterDashboard: builder.query({
+      query: () => ({
+        url: `api/dashboard/recruiter`,
+        method: "GET",
+      }),
+    }),
   }),
 });
 
@@ -72,4 +79,5 @@ export const {
   useGetApplicationsByJobIdMutation,
   useGetUserByIdQuery,
   useGetRecruiterApplicationByJobAndCandidateQuery,
+  useGetRecruiterDashboardQuery,
 } = recruiterJobPostSlice;

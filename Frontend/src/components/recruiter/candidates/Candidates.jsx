@@ -104,6 +104,23 @@ const Candidates = () => {
     }
   }, [applications]);
 
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "applied":
+        return "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800";
+      case "interview_scheduled":
+        return "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800";
+      case "interview_done":
+        return "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/20 dark:text-purple-400 dark:border-purple-800";
+      case "offered":
+        return "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800";
+      case "rejected":
+        return "bg-rose-100 text-rose-700 border-rose-200 dark:bg-rose-900/20 dark:text-rose-400 dark:border-rose-800";
+      default:
+        return "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-900/20 dark:text-gray-400 dark:border-gray-800";
+    }
+  };
+
   const columns = useMemo(
     () => [
       {
@@ -119,27 +136,7 @@ const Candidates = () => {
         header: "Status",
         cell: ({ row }) => {
           const status = row.getValue("status");
-          let badgeVariant;
-          switch (status) {
-            case "applied":
-              badgeVariant = "outline";
-              break;
-            case "under_review":
-              badgeVariant = "secondary";
-              break;
-            case "interviewed":
-              badgeVariant = "default";
-              break;
-            case "rejected":
-              badgeVariant = "destructive";
-              break;
-            case "hired":
-              badgeVariant = "success";
-              break;
-            default:
-              badgeVariant = "outline";
-          }
-          return <Badge variant={badgeVariant}>{status}</Badge>;
+          return <Badge className={getStatusColor(status)}>{status}</Badge>;
         },
       },
       {

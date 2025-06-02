@@ -7,6 +7,7 @@ import Profile from "./profile/Profile";
 import Candidates from "./candidates/Candidates";
 import ProtectedRoute from "@/utils/RouteValidation";
 import CandidatesView from "./candidates/CandidatesView";
+import Dashboard from "./dashboard/Dashboard";
 
 const RecruiterRoutes = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -66,7 +67,7 @@ const RecruiterRoutes = () => {
               <Routes>
                 <Route path="/jobpost/*" element={<JobPostMain />} />
                 <Route path="/profile" element={<Profile />} />
-                <Route path="/" element={<div>Dashboard</div>} />
+                <Route path="/" element={<Dashboard />} />
                 <Route path="/candidates" element={<Candidates />} />
                 <Route
                   path="/candidates/:candidateId"
