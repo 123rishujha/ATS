@@ -3,6 +3,7 @@ const axios = require("axios");
 const fs = require("fs");
 const path = require("path");
 const pdfParse = require("pdf-parse");
+require("dotenv").config();
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -27,7 +28,9 @@ async function extractTextFromPDF(filePath) {
 }
 
 const getFitScore = async (resumeUrl, jobDescription) => {
-  return 50;
+  if (process.env.ENVIRONMENT === "local") {
+    return 70;
+  }
   const filePath = await downloadResume(resumeUrl);
   const resumeText = await extractTextFromPDF(filePath);
 

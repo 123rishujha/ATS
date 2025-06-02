@@ -51,18 +51,22 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+
 import { Textarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils";
 import useS3Upload from "@/hooks/useS3Upload";
+import { useGetAiTranscriptToFeedbackMutation } from "@/components/ai/AiQuery";
 
 const CandidatesView = () => {
   const [filePreviewLink, setFilePreviewLink] = useState("");
   const [selectedAction, setSelectedAction] = useState(null);
+  const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
+  const [scheduledDate, setScheduledDate] = useState(null);
+  const [scheduledTime, setScheduledTime] = useState("");
+  const [zoomLink, setZoomLink] = useState("");
+  const [feedback, setFeedback] = useState("");
+  const [transcript, setTranscript] = useState("");
+  const [isSavingFeedback, setIsSavingFeedback] = useState(false);
+
   const { candidateId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -84,6 +88,9 @@ const CandidatesView = () => {
     { skip: !jobId || !candidateId ? true : false }
   );
 
+  const [AIFeedback, { isLoading: aiLoading }] =
+    useGetAiTranscriptToFeedbackMutation();
+
   const candidate = candidateData?.data;
   const application = applicationData?.data;
 
@@ -92,19 +99,6 @@ const CandidatesView = () => {
 
   const [updateApplicationApi, { isLoading: isUpdatingApplication }] =
     useJobApplicationOperMutation();
-
-  const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
-  const [scheduledDate, setScheduledDate] = useState(null);
-  const [scheduledTime, setScheduledTime] = useState("");
-  const [zoomLink, setZoomLink] = useState("");
-  const [feedback, setFeedback] = useState("");
-  const [isSavingFeedback, setIsSavingFeedback] = useState(false);
-
-  const handleDateSelect = (date) => {
-    if (date) {
-      setScheduledDate(date);
-    }
-  };
 
   if (isLoading) {
     return (
@@ -231,6 +225,8 @@ const CandidatesView = () => {
         method: "PUT",
         body: body,
       }).unwrap();
+      setTranscript("");
+      setFeedback("");
       refetchApplication();
     } catch (error) {
       toast.error(error?.data?.msg || "Failed to save feedback");
@@ -317,6 +313,20 @@ const CandidatesView = () => {
         return "bg-rose-100 text-rose-700 border-rose-200 dark:bg-rose-900/20 dark:text-rose-400 dark:border-rose-800";
       default:
         return "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-900/20 dark:text-gray-400 dark:border-gray-800";
+    }
+  };
+
+  const handleGenerateFeedBack = async () => {
+    if (transcript) {
+      const res = await AIFeedback({
+        body: { transcript },
+        method: "POST",
+        msz: true,
+      });
+      console.log("aaaaaa reeeeeee", res);
+      if (res?.data?.data) {
+        setFeedback(res.data.data);
+      }
     }
   };
 
@@ -549,33 +559,50 @@ const CandidatesView = () => {
                         </Label>
                       </div>
                       <Textarea
-                        placeholder="Enter detailed feedback about the candidate's performance..."
-                        value={feedback || application.interview.feedback || ""}
-                        onChange={(e) => setFeedback(e.target.value)}
+                        placeholder="Paste meeting transcript to generate candidate's performance score..."
+                        value={
+                          transcript || application.interview.feedback || ""
+                        }
+                        disabled={application.interview.feedback}
+                        onChange={(e) => setTranscript(e.target.value)}
                         className="min-h-[120px] resize-none border-border focus:border-primary transition-colors"
                       />
-                      <Button
-                        onClick={handleSaveFeedback}
-                        disabled={
-                          isSavingFeedback ||
-                          !feedback.trim() ||
-                          feedback.trim() ===
-                            (application.interview.feedback || "")
-                        }
-                        className="w-full bg-gradient-to-r from-secondary to-secondary/80 hover:from-secondary/90 hover:to-secondary/70 text-secondary-foreground shadow-lg hover:shadow-xl transition-all duration-200"
-                      >
-                        {isSavingFeedback ? (
-                          <>
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
-                            Saving Feedback...
-                          </>
-                        ) : (
-                          <>
-                            <CheckCircle className="h-4 w-4 mr-2" />
-                            Save Feedback
-                          </>
-                        )}
-                      </Button>
+                      {!application.interview.feedback && (
+                        <>
+                          <p>{feedback}</p>
+                          <div className="flex gap-2">
+                            <Button
+                              disabled={!transcript.trim() || aiLoading}
+                              className="flex-1"
+                              onClick={() => handleGenerateFeedBack()}
+                            >
+                              {aiLoading ? "Loading..." : "Get AI Feedback"}
+                            </Button>
+                            <Button
+                              onClick={handleSaveFeedback}
+                              disabled={
+                                isSavingFeedback ||
+                                !feedback.trim() ||
+                                feedback.trim() ===
+                                  (application.interview.feedback || "")
+                              }
+                              className="flex-1 bg-gradient-to-r from-secondary to-secondary/80 hover:from-secondary/90 hover:to-secondary/70 text-secondary-foreground shadow-lg hover:shadow-xl transition-all duration-200"
+                            >
+                              {isSavingFeedback ? (
+                                <>
+                                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
+                                  Saving Feedback...
+                                </>
+                              ) : (
+                                <>
+                                  <CheckCircle className="h-4 w-4 mr-2" />
+                                  Save Feedback
+                                </>
+                              )}
+                            </Button>
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
                 ) : (

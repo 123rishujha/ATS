@@ -11,6 +11,7 @@ const { awsRouter } = require("./routes/aws.routes");
 const { applicationRouter } = require("./routes/application.routes");
 const { authMiddleware } = require("./middlewares/authMiddleware");
 const dashboardRouter = require("./routes/dashboard.routes");
+const aiRouter = require("./routes/ai.routes");
 
 const app = express();
 
@@ -34,6 +35,7 @@ app.use("/api/user", userRouter);
 app.use("/api/jobposts", jobPostRouter);
 app.use("/api/applications", applicationRouter);
 app.use("/api/dashboard", dashboardRouter);
+app.use("/api/ai", aiRouter);
 
 app.use("/api", awsRouter);
 
