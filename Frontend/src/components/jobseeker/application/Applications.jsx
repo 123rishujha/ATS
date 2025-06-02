@@ -8,6 +8,7 @@ import { Eye } from "lucide-react";
 import DataTable from "@/utils/DataTable";
 import { Tooltip, TooltipTrigger } from "@/components/ui/tooltip";
 import { TooltipContent } from "@radix-ui/react-tooltip";
+import Loading from "@/components/common/Loading";
 
 const Applications = () => {
   const navigate = useNavigate();
@@ -90,7 +91,7 @@ const Applications = () => {
   ];
 
   if (isLoading) {
-    return <div>Loading applications...</div>;
+    return <Loading />;
   }
 
   return (

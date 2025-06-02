@@ -1,11 +1,19 @@
 import React, { useState, useMemo } from "react";
-import { Card, CardContent,  } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Search, Filter, MapPin, DollarSign, Briefcase, Users, Wallet } from "lucide-react";
+import {
+  Search,
+  Filter,
+  MapPin,
+  DollarSign,
+  Briefcase,
+  Users,
+  Wallet,
+} from "lucide-react";
 import { useGetAllJobPostsQuery } from "../JobSeekerQuery";
 import { Link } from "react-router-dom";
-
+import Loading from "@/components/common/Loading";
 
 const JobListings = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -15,53 +23,75 @@ const JobListings = () => {
   const [experienceLevel, setExperienceLevel] = useState("all");
   const [showFilters, setShowFilters] = useState(false);
 
-  const {
-    data,
-    isLoading,
-    isError,
-    error,
-  } = useGetAllJobPostsQuery();
+  const { data, isLoading, isError, error } = useGetAllJobPostsQuery();
 
   const filteredJobs = useMemo(() => {
     if (!data) return [];
 
     return data.filter((job) => {
-      const matchesSearch = 
+      const matchesSearch =
         job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         job.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         job.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        job.requiredSkills.some(skill => 
+        job.requiredSkills.some((skill) =>
           skill.toLowerCase().includes(searchTerm.toLowerCase())
         );
 
-      const matchesJobType = selectedJobType === "all" || job.jobType === selectedJobType;
-      
-      const matchesLocation = selectedLocation === "all" || 
+      const matchesJobType =
+        selectedJobType === "all" || job.jobType === selectedJobType;
+
+      const matchesLocation =
+        selectedLocation === "all" ||
         job.location.toLowerCase().includes(selectedLocation.toLowerCase());
 
-      const matchesSalary = salaryRange === "all" || (() => {
-        const maxSalary = job.salaryRange.max;
-        switch (salaryRange) {
-          case "0-500000": return maxSalary <= 500000;
-          case "500000-1000000": return maxSalary > 500000 && maxSalary <= 1000000;
-          case "1000000+": return maxSalary > 1000000;
-          default: return true;
-        }
-      })();
+      const matchesSalary =
+        salaryRange === "all" ||
+        (() => {
+          const maxSalary = job.salaryRange.max;
+          switch (salaryRange) {
+            case "0-500000":
+              return maxSalary <= 500000;
+            case "500000-1000000":
+              return maxSalary > 500000 && maxSalary <= 1000000;
+            case "1000000+":
+              return maxSalary > 1000000;
+            default:
+              return true;
+          }
+        })();
 
-      const matchesExperience = experienceLevel === "all" || (() => {
-        const maxExp = job.experienceRequired.max;
-        switch (experienceLevel) {
-          case "entry": return maxExp <= 1;
-          case "mid": return maxExp > 1 && maxExp <= 4;
-          case "senior": return maxExp > 4;
-          default: return true;
-        }
-      })();
+      const matchesExperience =
+        experienceLevel === "all" ||
+        (() => {
+          const maxExp = job.experienceRequired.max;
+          switch (experienceLevel) {
+            case "entry":
+              return maxExp <= 1;
+            case "mid":
+              return maxExp > 1 && maxExp <= 4;
+            case "senior":
+              return maxExp > 4;
+            default:
+              return true;
+          }
+        })();
 
-      return matchesSearch && matchesJobType && matchesLocation && matchesSalary && matchesExperience;
+      return (
+        matchesSearch &&
+        matchesJobType &&
+        matchesLocation &&
+        matchesSalary &&
+        matchesExperience
+      );
     });
-  }, [data, searchTerm, selectedJobType, selectedLocation, salaryRange, experienceLevel]);
+  }, [
+    data,
+    searchTerm,
+    selectedJobType,
+    selectedLocation,
+    salaryRange,
+    experienceLevel,
+  ]);
 
   const getJobTypeColor = (jobType) => {
     switch (jobType.toLowerCase()) {
@@ -90,11 +120,7 @@ const JobListings = () => {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-64">
-        <div className="text-lg text-slate-600">Loading job listings...</div>
-      </div>
-    );
+    return <Loading />;
   }
 
   if (isError) {
@@ -113,7 +139,8 @@ const JobListings = () => {
           Find Your Dream Job
         </h1>
         <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-          Discover amazing opportunities from top companies. Your next career move starts here.
+          Discover amazing opportunities from top companies. Your next career
+          move starts here.
         </p>
       </div>
 
@@ -195,154 +222,208 @@ const JobListings = () => {
 
       {/* Results Count */}
       <div className="text-slate-600">
-        Found <span className="font-semibold text-slate-800">{filteredJobs.length}</span> jobs
+        Found{" "}
+        <span className="font-semibold text-slate-800">
+          {filteredJobs.length}
+        </span>{" "}
+        jobs
       </div>
 
       {/* Job Listings - Horizontal Layout */}
       <div className="space-y-4 ">
         {filteredJobs.length > 0 ? (
           filteredJobs.map((job) => (
-            <Card key={job._id}  className="group hover:shadow-lg transition-all duration-300 border-slate-200 bg-white">
+            <Card
+              key={job._id}
+              className="group hover:shadow-lg transition-all duration-300 border-slate-200 bg-white"
+            >
               <Link to={`/jobseeker/jobs/${job._id}`} className="mb-2">
-              <CardContent className="p-4 md:p-6">
-                {/* Desktop Layout */}
-                <div className="hidden lg:flex items-center justify-between gap-6 cursor-pointer">
-                  {/* Left Section - Job Info */}
-                  <div className="flex-1 space-y-3 min-w-0">
-                    <div className="flex items-end justify-between gap-4">
-                      <div className="space-y-1 min-w-0">
-                        <h3 className="text-xl font-semibold text-slate-800 group-hover:text-blue-600 transition-colors truncate">
+                <CardContent className="p-4 md:p-6">
+                  {/* Desktop Layout */}
+                  <div className="hidden lg:flex items-center justify-between gap-6 cursor-pointer">
+                    {/* Left Section - Job Info */}
+                    <div className="flex-1 space-y-3 min-w-0">
+                      <div className="flex items-end justify-between gap-4">
+                        <div className="space-y-1 min-w-0">
+                          <h3 className="text-xl font-semibold text-slate-800 group-hover:text-blue-600 transition-colors truncate">
+                            {job.title}
+                          </h3>
+                          <p className="text-sm font-medium text-slate-600 truncate">
+                            {job.company}
+                          </p>
+                          <div className="flex items-center gap-2 text-sm text-slate-500">
+                            <MapPin className="h-4 w-4 flex-shrink-0" />
+                            <span className="truncate">{job.location}</span>
+                          </div>
+                        </div>
+                        <Badge
+                          className={`${getJobTypeColor(
+                            job.jobType
+                          )} border font-medium flex-shrink-0`}
+                        >
+                          {job.jobType}
+                        </Badge>
+                      </div>
+
+                      {/* Skills */}
+                      <div className="flex flex-wrap gap-2">
+                        {job.requiredSkills.slice(0, 4).map((skill, index) => (
+                          <Badge
+                            key={index}
+                            variant="secondary"
+                            className="text-xs bg-slate-100 text-slate-600 hover:bg-slate-200"
+                          >
+                            {skill}
+                          </Badge>
+                        ))}
+                        {job.requiredSkills.length > 4 && (
+                          <Badge
+                            variant="secondary"
+                            className="text-xs bg-slate-100 text-slate-500"
+                          >
+                            +{job.requiredSkills.length - 4} more
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Middle Section - Details */}
+                    <div className="flex  items-center gap-8 px-6 border-l border-r border-slate-200 flex-shrink-0">
+                      <div className="text-center">
+                        <div className="flex items-center gap-2 text-slate-600 mb-1">
+                          <Wallet className="h-4 w-4 text-green-600" />
+                          <span className="font-semibold text-slate-800 text-sm">
+                            {formatSalary(
+                              job.salaryRange.min,
+                              job.salaryRange.max
+                            )}
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-500">Salary</p>
+                      </div>
+
+                      <div className="text-center">
+                        <div className="flex items-center gap-2 text-slate-600 mb-1">
+                          <Briefcase className="h-4 w-4 text-blue-600" />
+                          <span className="font-semibold text-slate-800 text-sm">
+                            {job.experienceRequired.min}-
+                            {job.experienceRequired.max} yrs
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-500">Experience</p>
+                      </div>
+
+                      <div className="text-center">
+                        <div className="flex items-center gap-2 text-slate-600 mb-1">
+                          <Users className="h-4 w-4 text-purple-600" />
+                          <span className="font-semibold text-slate-800 text-sm">
+                            {job.applicantsCount}
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-500">Applicants</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Mobile/Tablet Layout */}
+                  <div className="lg:hidden space-y-4 cursor-pointer">
+                    {/* Header Row */}
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="space-y-1 min-w-0 flex-1">
+                        <h3 className="text-lg md:text-xl font-semibold text-slate-800 group-hover:text-blue-600 transition-colors">
                           {job.title}
                         </h3>
-                        <p className="text-sm font-medium text-slate-600 truncate">{job.company}</p>
+                        <p className="text-sm font-medium text-slate-600">
+                          {job.company}
+                        </p>
                         <div className="flex items-center gap-2 text-sm text-slate-500">
                           <MapPin className="h-4 w-4 flex-shrink-0" />
-                          <span className="truncate">{job.location}</span>
+                          <span>{job.location}</span>
                         </div>
                       </div>
-                      <Badge className={`${getJobTypeColor(job.jobType)} border font-medium flex-shrink-0`}>
+                      <Badge
+                        className={`${getJobTypeColor(
+                          job.jobType
+                        )} border font-medium flex-shrink-0`}
+                      >
                         {job.jobType}
                       </Badge>
                     </div>
 
-                    {/* Skills */}
+                    {/* Skills Row */}
                     <div className="flex flex-wrap gap-2">
                       {job.requiredSkills.slice(0, 4).map((skill, index) => (
-                        <Badge key={index} variant="secondary" className="text-xs bg-slate-100 text-slate-600 hover:bg-slate-200">
+                        <Badge
+                          key={index}
+                          variant="secondary"
+                          className="text-xs bg-slate-100 text-slate-600 hover:bg-slate-200"
+                        >
                           {skill}
                         </Badge>
                       ))}
                       {job.requiredSkills.length > 4 && (
-                        <Badge variant="secondary" className="text-xs bg-slate-100 text-slate-500">
+                        <Badge
+                          variant="secondary"
+                          className="text-xs bg-slate-100 text-slate-500"
+                        >
                           +{job.requiredSkills.length - 4} more
                         </Badge>
                       )}
                     </div>
-                  </div>
 
-                  {/* Middle Section - Details */}
-                  <div className="flex  items-center gap-8 px-6 border-l border-r border-slate-200 flex-shrink-0">
-                    <div className="text-center">
-                      <div className="flex items-center gap-2 text-slate-600 mb-1">
-                        <Wallet className="h-4 w-4 text-green-600" />
-                        <span className="font-semibold text-slate-800 text-sm">{formatSalary(job.salaryRange.min, job.salaryRange.max)}</span>
+                    {/* Details Row */}
+                    <div className="grid grid-cols-3 gap-4 py-3 border-t border-slate-200">
+                      <div className="text-center">
+                        <div className="flex items-center justify-center gap-1 text-slate-600 mb-1">
+                          <DollarSign className="h-4 w-4 text-green-600" />
+                          <span className="font-semibold text-slate-800 text-sm">
+                            {formatSalary(
+                              job.salaryRange.min,
+                              job.salaryRange.max
+                            )}
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-500">Salary</p>
                       </div>
-                      <p className="text-xs text-slate-500">Salary</p>
-                    </div>
-                    
-                    <div className="text-center">
-                      <div className="flex items-center gap-2 text-slate-600 mb-1">
-                        <Briefcase className="h-4 w-4 text-blue-600" />
-                        <span className="font-semibold text-slate-800 text-sm">{job.experienceRequired.min}-{job.experienceRequired.max} yrs</span>
-                      </div>
-                      <p className="text-xs text-slate-500">Experience</p>
-                    </div>
 
-                    <div className="text-center">
-                      <div className="flex items-center gap-2 text-slate-600 mb-1">
-                        <Users className="h-4 w-4 text-purple-600" />
-                        <span className="font-semibold text-slate-800 text-sm">{job.applicantsCount}</span>
+                      <div className="text-center">
+                        <div className="flex items-center justify-center gap-1 text-slate-600 mb-1">
+                          <Briefcase className="h-4 w-4 text-blue-600" />
+                          <span className="font-semibold text-slate-800 text-sm">
+                            {job.experienceRequired.min}-
+                            {job.experienceRequired.max} yrs
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-500">Experience</p>
                       </div>
-                      <p className="text-xs text-slate-500">Applicants</p>
-                    </div>
-                  </div>
 
-                </div>
-
-                {/* Mobile/Tablet Layout */}
-                <div className="lg:hidden space-y-4 cursor-pointer">
-                  {/* Header Row */}
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="space-y-1 min-w-0 flex-1">
-                      <h3 className="text-lg md:text-xl font-semibold text-slate-800 group-hover:text-blue-600 transition-colors">
-                        {job.title}
-                      </h3>
-                      <p className="text-sm font-medium text-slate-600">{job.company}</p>
-                      <div className="flex items-center gap-2 text-sm text-slate-500">
-                        <MapPin className="h-4 w-4 flex-shrink-0" />
-                        <span>{job.location}</span>
+                      <div className="text-center">
+                        <div className="flex items-center justify-center gap-1 text-slate-600 mb-1">
+                          <Users className="h-4 w-4 text-purple-600" />
+                          <span className="font-semibold text-slate-800 text-sm">
+                            {job.applicantsCount}
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-500">Applicants</p>
                       </div>
-                    </div>
-                    <Badge className={`${getJobTypeColor(job.jobType)} border font-medium flex-shrink-0`}>
-                      {job.jobType}
-                    </Badge>
-                  </div>
-
-                  {/* Skills Row */}
-                  <div className="flex flex-wrap gap-2">
-                    {job.requiredSkills.slice(0, 4).map((skill, index) => (
-                      <Badge key={index} variant="secondary" className="text-xs bg-slate-100 text-slate-600 hover:bg-slate-200">
-                        {skill}
-                      </Badge>
-                    ))}
-                    {job.requiredSkills.length > 4 && (
-                      <Badge variant="secondary" className="text-xs bg-slate-100 text-slate-500">
-                        +{job.requiredSkills.length - 4} more
-                      </Badge>
-                    )}
-                  </div>
-
-                  {/* Details Row */}
-                  <div className="grid grid-cols-3 gap-4 py-3 border-t border-slate-200">
-                    <div className="text-center">
-                      <div className="flex items-center justify-center gap-1 text-slate-600 mb-1">
-                        <DollarSign className="h-4 w-4 text-green-600" />
-                        <span className="font-semibold text-slate-800 text-sm">{formatSalary(job.salaryRange.min, job.salaryRange.max)}</span>
-                      </div>
-                      <p className="text-xs text-slate-500">Salary</p>
-                    </div>
-                    
-                    <div className="text-center">
-                      <div className="flex items-center justify-center gap-1 text-slate-600 mb-1">
-                        <Briefcase className="h-4 w-4 text-blue-600" />
-                        <span className="font-semibold text-slate-800 text-sm">{job.experienceRequired.min}-{job.experienceRequired.max} yrs</span>
-                      </div>
-                      <p className="text-xs text-slate-500">Experience</p>
-                    </div>
-
-                    <div className="text-center">
-                      <div className="flex items-center justify-center gap-1 text-slate-600 mb-1">
-                        <Users className="h-4 w-4 text-purple-600" />
-                        <span className="font-semibold text-slate-800 text-sm">{job.applicantsCount}</span>
-                      </div>
-                      <p className="text-xs text-slate-500">Applicants</p>
                     </div>
                   </div>
-                </div>
-              </CardContent>
+                </CardContent>
               </Link>
             </Card>
-
           ))
         ) : (
           <div className="text-center py-12">
             <div className="space-y-4">
               <div className="text-6xl">🔍</div>
-              <h3 className="text-xl font-semibold text-slate-700">No jobs found</h3>
+              <h3 className="text-xl font-semibold text-slate-700">
+                No jobs found
+              </h3>
               <p className="text-slate-500 max-w-md mx-auto">
-                Try adjusting your search criteria or filters to find more opportunities.
+                Try adjusting your search criteria or filters to find more
+                opportunities.
               </p>
-              <Button 
+              <Button
                 onClick={() => {
                   setSearchTerm("");
                   setSelectedJobType("all");

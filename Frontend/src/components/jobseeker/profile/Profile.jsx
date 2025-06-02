@@ -1,25 +1,26 @@
-import React, { useState } from 'react';
-import { 
-  User, 
-  Mail, 
-  Calendar, 
-  Clock, 
-  Briefcase, 
-  Settings, 
+import React, { useState } from "react";
+import {
+  User,
+  Mail,
+  Calendar,
+  Clock,
+  Briefcase,
+  Settings,
   Edit3,
   FileText,
   Download,
   Upload,
   Eye,
-  BadgeCheck
-} from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import ProfileForm from './ProfileForm';
-import { useSelector } from 'react-redux';
+  BadgeCheck,
+  IndianRupee,
+} from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import ProfileForm from "./ProfileForm";
+import { useSelector } from "react-redux";
 
 const Profile = () => {
   // Mock data based on your schema
-  const {userState } = useSelector(s=>s.user);
+  const { userState } = useSelector((s) => s.user);
 
   const [loading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -29,32 +30,32 @@ const Profile = () => {
   };
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
   const getInitials = (name) => {
     return name
-      .split(' ')
-      .map(word => word.charAt(0))
-      .join('')
+      .split(" ")
+      .map((word) => word.charAt(0))
+      .join("")
       .toUpperCase();
   };
 
   const handleResumeView = () => {
     if (userState.resume?.url) {
-      window.open(userState.resume.url, '_blank');
+      window.open(userState.resume.url, "_blank");
     }
   };
 
   const handleResumeDownload = () => {
     if (userState.resume?.url) {
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = userState.resume.url;
       link.download = `${userState.name}_Resume.pdf`;
       document.body.appendChild(link);
@@ -83,10 +84,20 @@ const Profile = () => {
             <div className="flex items-start justify-between">
               <div className="flex items-center space-x-4">
                 <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white text-xl font-semibold">
-                  {userState.userPhoto ? <img src={userState.userPhoto} alt="User" className="w-full h-full object-cover rounded-full" /> : getInitials(userState.name)}
+                  {userState.userPhoto ? (
+                    <img
+                      src={userState.userPhoto}
+                      alt="User"
+                      className="w-full h-full object-cover rounded-full"
+                    />
+                  ) : (
+                    getInitials(userState.name)
+                  )}
                 </div>
                 <div>
-                  <h1 className="text-3xl font-bold text-slate-900">{userState.name}</h1>
+                  <h1 className="text-3xl font-bold text-slate-900">
+                    {userState.name}
+                  </h1>
                   <div className="flex items-center mt-2 space-x-4">
                     <div className="flex items-center text-slate-600">
                       <Mail className="w-4 h-4 mr-2" />
@@ -137,12 +148,13 @@ const Profile = () => {
                     Resume
                   </h2>
                 </div>
-                
+
                 {!userState.resume?.url ? (
                   <Alert>
                     <Upload className="w-4 h-4" />
                     <AlertDescription>
-                      No resume uploaded yet. Upload your resume to increase your chances of getting hired.
+                      No resume uploaded yet. Upload your resume to increase
+                      your chances of getting hired.
                     </AlertDescription>
                   </Alert>
                 ) : (
@@ -153,9 +165,12 @@ const Profile = () => {
                           <FileText className="w-5 h-5 text-red-600" />
                         </div>
                         <div>
-                          <h4 className="font-medium text-slate-900">Resume.pdf</h4>
+                          <h4 className="font-medium text-slate-900">
+                            Resume.pdf
+                          </h4>
                           <p className="text-sm text-slate-600">
-                            Uploaded on {formatDate(userState.resume.uploadedAt)}
+                            Uploaded on{" "}
+                            {formatDate(userState.resume.uploadedAt)}
                           </p>
                         </div>
                       </div>
@@ -177,7 +192,10 @@ const Profile = () => {
                       </div>
                     </div>
                     <div className="text-sm text-slate-600">
-                      <p>Make sure your resume is up to date and highlights your key skills and experience.</p>
+                      <p>
+                        Make sure your resume is up to date and highlights your
+                        key skills and experience.
+                      </p>
                     </div>
                   </div>
                 )}
@@ -191,17 +209,20 @@ const Profile = () => {
                     Job Preferences
                   </h2>
                 </div>
-                
+
                 {userState.jobPreferences.roles.length === 0 ? (
                   <Alert>
                     <AlertDescription>
-                      No preferred job roles set yet. Add your preferred roles to help employers find you.
+                      No preferred job roles set yet. Add your preferred roles
+                      to help employers find you.
                     </AlertDescription>
                   </Alert>
                 ) : (
                   <div className="space-y-4">
                     <div>
-                      <h4 className="text-sm font-medium text-slate-700 mb-2">Preferred Roles</h4>
+                      <h4 className="text-sm font-medium text-slate-700 mb-2">
+                        Preferred Roles
+                      </h4>
                       <div className="flex flex-wrap gap-2">
                         {userState.jobPreferences.roles.map((role, index) => (
                           <span
@@ -213,32 +234,50 @@ const Profile = () => {
                         ))}
                       </div>
                     </div>
-                    
+
                     {userState.jobPreferences.salaryExpectation && (
                       <div>
-                        <h4 className="text-sm font-medium text-slate-700">Expected Salary</h4>
-                        <p className="text-slate-600">${userState.jobPreferences.salaryExpectation.toLocaleString()} annually</p>
+                        <h4 className="text-sm font-medium text-slate-700">
+                          Expected Salary
+                        </h4>
+                        <p className="text-slate-600 flex gap-2 items-center">
+                          <IndianRupee className="w-4 h-4" />{" "}
+                          {userState.jobPreferences.salaryExpectation.toLocaleString()}{" "}
+                          annually
+                        </p>
                       </div>
                     )}
-                    
+
                     {userState.jobPreferences.locationPreference && (
                       <div>
-                        <h4 className="text-sm font-medium text-slate-700">Location Preference</h4>
-                        <p className="text-slate-600">{userState.jobPreferences.locationPreference}</p>
+                        <h4 className="text-sm font-medium text-slate-700">
+                          Location Preference
+                        </h4>
+                        <p className="text-slate-600">
+                          {userState.jobPreferences.locationPreference}
+                        </p>
                       </div>
                     )}
-                    
+
                     <div>
-                      <h4 className="text-sm font-medium text-slate-700">Work Preference</h4>
+                      <h4 className="text-sm font-medium text-slate-700">
+                        Work Preference
+                      </h4>
                       <p className="text-slate-600">
-                        {userState.jobPreferences.remotePreferred ? 'Remote preferred' : 'Office-based preferred'}
+                        {userState.jobPreferences.remotePreferred
+                          ? "Remote preferred"
+                          : "Office-based preferred"}
                       </p>
                     </div>
-                    
+
                     {userState.jobPreferences.noticePeriod && (
                       <div>
-                        <h4 className="text-sm font-medium text-slate-700">Notice Period</h4>
-                        <p className="text-slate-600">{userState.jobPreferences.noticePeriod}</p>
+                        <h4 className="text-sm font-medium text-slate-700">
+                          Notice Period
+                        </h4>
+                        <p className="text-slate-600">
+                          {userState.jobPreferences.noticePeriod}
+                        </p>
                       </div>
                     )}
                   </div>
@@ -278,39 +317,69 @@ const Profile = () => {
             <div className="space-y-6">
               {/* Profile Completion */}
               <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
-                <h3 className="text-lg font-semibold text-slate-900 mb-4">Profile Completion</h3>
+                <h3 className="text-lg font-semibold text-slate-900 mb-4">
+                  Profile Completion
+                </h3>
                 <div className="space-y-3">
                   <div className="flex justify-between text-sm">
                     <span>Basic Info</span>
                     <span className="text-green-600 font-medium">Complete</span>
                   </div>
                   <div className="w-full bg-slate-200 rounded-full h-2">
-                    <div className="bg-green-500 h-2 rounded-full" style={{ width: '100%' }}></div>
-                  </div>
-                  
-                  <div className="flex justify-between text-sm">
-                    <span>Resume</span>
-                    <span className={`font-medium ${userState.resume?.url ? 'text-green-600' : 'text-amber-600'}`}>
-                      {userState.resume?.url ? 'Complete' : 'Missing'}
-                    </span>
-                  </div>
-                  <div className="w-full bg-slate-200 rounded-full h-2">
-                    <div 
-                      className={`h-2 rounded-full ${userState.resume?.url ? 'bg-green-500' : 'bg-amber-500'}`}
-                      style={{ width: userState.resume?.url ? '100%' : '0%' }}
+                    <div
+                      className="bg-green-500 h-2 rounded-full"
+                      style={{ width: "100%" }}
                     ></div>
                   </div>
-                  
+
                   <div className="flex justify-between text-sm">
-                    <span>Job Preferences</span>
-                    <span className={`font-medium ${userState.jobPreferences.roles.length > 0 ? 'text-green-600' : 'text-amber-600'}`}>
-                      {userState.jobPreferences.roles.length > 0 ? 'Complete' : 'Incomplete'}
+                    <span>Resume</span>
+                    <span
+                      className={`font-medium ${
+                        userState.resume?.url
+                          ? "text-green-600"
+                          : "text-amber-600"
+                      }`}
+                    >
+                      {userState.resume?.url ? "Complete" : "Missing"}
                     </span>
                   </div>
                   <div className="w-full bg-slate-200 rounded-full h-2">
-                    <div 
-                      className={`h-2 rounded-full ${userState.jobPreferences.roles.length > 0 ? 'bg-green-500' : 'bg-amber-500'}`}
-                      style={{ width: userState.jobPreferences.roles.length > 0 ? '100%' : '25%' }}
+                    <div
+                      className={`h-2 rounded-full ${
+                        userState.resume?.url ? "bg-green-500" : "bg-amber-500"
+                      }`}
+                      style={{ width: userState.resume?.url ? "100%" : "0%" }}
+                    ></div>
+                  </div>
+
+                  <div className="flex justify-between text-sm">
+                    <span>Job Preferences</span>
+                    <span
+                      className={`font-medium ${
+                        userState.jobPreferences.roles.length > 0
+                          ? "text-green-600"
+                          : "text-amber-600"
+                      }`}
+                    >
+                      {userState.jobPreferences.roles.length > 0
+                        ? "Complete"
+                        : "Incomplete"}
+                    </span>
+                  </div>
+                  <div className="w-full bg-slate-200 rounded-full h-2">
+                    <div
+                      className={`h-2 rounded-full ${
+                        userState.jobPreferences.roles.length > 0
+                          ? "bg-green-500"
+                          : "bg-amber-500"
+                      }`}
+                      style={{
+                        width:
+                          userState.jobPreferences.roles.length > 0
+                            ? "100%"
+                            : "25%",
+                      }}
                     ></div>
                   </div>
                   <p className="text-sm text-slate-600 mt-3">
@@ -321,7 +390,9 @@ const Profile = () => {
 
               {/* Quick Actions */}
               <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
-                <h3 className="text-lg font-semibold text-slate-900 mb-4">Quick Actions</h3>
+                <h3 className="text-lg font-semibold text-slate-900 mb-4">
+                  Quick Actions
+                </h3>
                 <div className="space-y-2">
                   <button className="w-full text-left px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 rounded transition-colors">
                     View Applications
