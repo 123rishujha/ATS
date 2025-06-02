@@ -26,7 +26,7 @@ const JobPostView = () => {
     return <div>Error loading job post.</div>;
   }
 
-  const jobPost = jobPostData?.data || {};
+  const jobPost = jobPostData || {};
 
   const getJobTypeColor = (type) => {
     const colors = {
@@ -66,8 +66,8 @@ const JobPostView = () => {
           <CardTitle>{jobPost.title}</CardTitle>
           <CardDescription className="mt-2">
             <Badge className={getJobTypeColor(jobPost.jobType)}>
-              {jobPost.jobType.charAt(0).toUpperCase() +
-                jobPost.jobType.slice(1)}
+              {jobPost?.jobType?.charAt(0)?.toUpperCase() +
+                jobPost?.jobType?.slice(1)}
             </Badge>
             <span className="ml-2">•</span>
             <span className="ml-2">{jobPost.location}</span>
@@ -87,15 +87,15 @@ const JobPostView = () => {
           <div>
             <h3 className="text-lg font-semibold mb-2">Salary Range</h3>
             <p>
-              ${jobPost.salaryRange.min.toLocaleString()} - $
-              {jobPost.salaryRange.max.toLocaleString()}
+              ${jobPost?.salaryRange?.min?.toLocaleString()} - $
+              {jobPost?.salaryRange?.max?.toLocaleString()}
             </p>
           </div>
           <div>
             <h3 className="text-lg font-semibold mb-2">Experience Required</h3>
             <p>
-              {jobPost.experienceRequired.min} -{" "}
-              {jobPost.experienceRequired.max} years
+              {jobPost?.experienceRequired?.min} -{" "}
+              {jobPost?.experienceRequired?.max} years
             </p>
           </div>
         </div>
@@ -103,7 +103,7 @@ const JobPostView = () => {
         <div>
           <h3 className="text-lg font-semibold mb-2">Required Skills</h3>
           <div className="flex flex-wrap gap-2">
-            {jobPost.requiredSkills.map((skill) => (
+            {jobPost?.requiredSkills?.map((skill) => (
               <Badge key={skill} variant="secondary">
                 {skill}
               </Badge>
@@ -115,7 +115,9 @@ const JobPostView = () => {
           <h3 className="text-lg font-semibold mb-2">Job Description</h3>
           <div className="prose prose-sm max-w-none">
             {/* {renderDescription(jobPost.description)} */}
-            <ViewOnlyEditor documentData={jobPost.description} />
+            {jobPost.description && (
+              <ViewOnlyEditor documentData={jobPost.description} />
+            )}
           </div>
         </div>
 

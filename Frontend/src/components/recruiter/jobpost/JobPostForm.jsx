@@ -91,57 +91,54 @@ const JobPostForm = () => {
       skip: !isEdit,
     });
 
+  console.log("aklf jobPostData", jobPostData);
+
   const [jobPostOperation] = useJobPostOperMutation();
 
   const form = useForm({
     resolver: zodResolver(jobPostSchema),
     defaultValues: {
-      title: jobPostData?.data?.title || "",
-      description: jobPostData?.data?.description || initialEditorValue,
-      location: jobPostData?.data?.location || "",
-      jobType: jobPostData?.data?.jobType || "full-time",
+      title: jobPostData?.title || "",
+      description: jobPostData?.description || initialEditorValue,
+      location: jobPostData?.location || "",
+      jobType: jobPostData?.jobType || "full-time",
       salaryRange: {
-        min: jobPostData?.data?.salaryRange?.min || 0,
-        max: jobPostData?.data?.salaryRange?.max || 0,
+        min: jobPostData?.salaryRange?.min || 0,
+        max: jobPostData?.salaryRange?.max || 0,
       },
-      requiredSkills: jobPostData?.data?.requiredSkills || [],
+      requiredSkills: jobPostData?.requiredSkills || [],
       experienceRequired: {
-        min: jobPostData?.data?.experienceRequired?.min || 0,
-        max: jobPostData?.data?.experienceRequired?.max || 0,
+        min: jobPostData?.experienceRequired?.min || 0,
+        max: jobPostData?.experienceRequired?.max || 0,
       },
-      isPublished: jobPostData?.data?.isPublished ?? true,
+      isPublished: jobPostData?.isPublished ?? true,
     },
   });
 
   // Reset form with fetched data when in edit mode and data is available
   useEffect(() => {
     if (isEdit && jobPostData) {
-      console.log(
-        "JobPostForm - Fetched Description Data:",
-        jobPostData.data.description
-      );
       form.reset({
-        title: jobPostData.data.title,
-        description: jobPostData.data.description,
-        location: jobPostData.data.location,
-        jobType: jobPostData.data.jobType,
+        title: jobPostData.title,
+        description: jobPostData.description,
+        location: jobPostData.location,
+        jobType: jobPostData.jobType,
         salaryRange: {
-          min: jobPostData.data.salaryRange?.min || 0,
-          max: jobPostData.data.salaryRange?.max || 0,
+          min: jobPostData.salaryRange?.min || 0,
+          max: jobPostData.salaryRange?.max || 0,
         },
-        requiredSkills: jobPostData.data.requiredSkills,
+        requiredSkills: jobPostData.requiredSkills,
         experienceRequired: {
-          min: jobPostData.data.experienceRequired?.min || 0,
-          max: jobPostData.data.experienceRequired?.max || 0,
+          min: jobPostData.experienceRequired?.min || 0,
+          max: jobPostData.experienceRequired?.max || 0,
         },
-        isPublished: jobPostData.data.isPublished,
+        isPublished: jobPostData.isPublished,
       });
     }
   }, [isEdit, jobPostData, form]);
 
   const onSubmit = async (data) => {
-    console.log("akfdj ata", data);
-    console.log("Form Errors:", form.formState.errors); // Added console log for form errors
+    // Added console log for form errors
     try {
       setIsSubmitting(true);
       if (isEdit) {
