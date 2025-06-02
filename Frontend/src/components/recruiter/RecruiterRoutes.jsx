@@ -65,9 +65,9 @@ const RecruiterRoutes = () => {
           >
             <div className="w-full max-w-7xl mx-auto">
               <Routes>
+                <Route path="/" element={<Dashboard />} />
                 <Route path="/jobpost/*" element={<JobPostMain />} />
                 <Route path="/profile" element={<Profile />} />
-                <Route path="/" element={<Dashboard />} />
                 <Route path="/candidates" element={<Candidates />} />
                 <Route
                   path="/candidates/:candidateId"

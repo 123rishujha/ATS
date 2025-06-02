@@ -79,7 +79,7 @@ const jobseekerSlice = slice.injectEndpoints({
     }),
     getJobSeekerDashboard: builder.query({
       query: () => ({
-        url: `api/dashboard/recruiter`,
+        url: `api/dashboard/jobseeker`,
         method: "GET",
       }),
     }),

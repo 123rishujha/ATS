@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { useForm, useFieldArray } from 'react-hook-form';
-import { 
-  User, 
+import React, { useState } from "react";
+import { useForm, useFieldArray } from "react-hook-form";
+import {
+  User,
   Plus,
   Save,
   X,
@@ -13,31 +13,27 @@ import {
   FileText,
   HardDrive,
   Eye,
-  Clock
-} from 'lucide-react';
-import useS3Upload from '@/hooks/useS3Upload';
-import { useUpdateProfileMutation } from '../JobSeekerQuery';
-import { userLogin } from '@/redux/user/userSlice';
-import { useDispatch } from 'react-redux';
+  Clock,
+  IndianRupee,
+} from "lucide-react";
+import useS3Upload from "@/hooks/useS3Upload";
+import { useUpdateProfileMutation } from "../JobSeekerQuery";
+import { userLogin } from "@/redux/user/userSlice";
+import { useDispatch } from "react-redux";
 
-const ProfileForm = ({ 
-  userState, 
-  setIsEditing, 
-  onCancel, 
-}) => {
+const ProfileForm = ({ userState, setIsEditing, onCancel }) => {
+  const [filePreviewLink, setFilePreviewLink] = useState("");
+  const [imagePreviewLink, setImagePreviewLink] = useState("");
 
-   const [filePreviewLink, setFilePreviewLink] = useState("");
-   const [imagePreviewLink, setImagePreviewLink] = useState("");
-
-   const dispatch = useDispatch();
-   const [api,{isLoading:isSubmitting}] = useUpdateProfileMutation();
+  const dispatch = useDispatch();
+  const [api, { isLoading: isSubmitting }] = useUpdateProfileMutation();
 
   const {
     register,
     handleSubmit,
     control,
     formState: { errors },
-    watch
+    watch,
   } = useForm({
     defaultValues: {
       name: userState.name,
@@ -48,17 +44,17 @@ const ProfileForm = ({
       userResume: userState?.resume?.url,
       jobPreferences: {
         roles: userState.jobPreferences.roles || [],
-        salaryExpectation: userState.jobPreferences.salaryExpectation || '',
-        locationPreference: userState.jobPreferences.locationPreference || '',
+        salaryExpectation: userState.jobPreferences.salaryExpectation || "",
+        locationPreference: userState.jobPreferences.locationPreference || "",
         remotePreferred: userState.jobPreferences.remotePreferred || false,
-        noticePeriod: userState.jobPreferences.noticePeriod || ''
-      }
-    }
+        noticePeriod: userState.jobPreferences.noticePeriod || "",
+      },
+    },
   });
 
   const { fields, append, remove } = useFieldArray({
     control,
-    name: "jobPreferences.roles"
+    name: "jobPreferences.roles",
   });
   const { handleUploadFileS3 } = useS3Upload();
 
@@ -83,9 +79,9 @@ const ProfileForm = ({
   const handleResumeUpload = async (e) => {
     const files = e.target.files;
     if (files?.length > 0) {
-      const filePreview = document.getElementById('file-preview');
+      const filePreview = document.getElementById("file-preview");
       if (filePreview) {
-        filePreview.classList.remove('hidden');
+        filePreview.classList.remove("hidden");
       }
       try {
         const res = await handleUploadFileS3(files[0], "resume");
@@ -99,9 +95,9 @@ const ProfileForm = ({
   };
 
   const handleRemoveFile = () => {
-    const filePreview = document.getElementById('file-preview');
+    const filePreview = document.getElementById("file-preview");
     if (filePreview) {
-      filePreview.classList.add('hidden');
+      filePreview.classList.add("hidden");
     }
   };
 
@@ -117,24 +113,23 @@ const ProfileForm = ({
         locationPreference: data.jobPreferences.locationPreference,
         remotePreferred: data.jobPreferences.remotePreferred,
         noticePeriod: data.jobPreferences.noticePeriod,
-      }
-    }
-    if(filePreviewLink){
-      body['resume'] = {
+      },
+    };
+    if (filePreviewLink) {
+      body["resume"] = {
         url: filePreviewLink,
         uploadedAt: new Date().toISOString(),
-      }
+      };
     }
     const res = await api({
-      body: body
-    })
-    if(res?.data?.data){
-      
-      console.log("ajklf data", res?.data?.data)
+      body: body,
+    });
+    if (res?.data?.data) {
+      console.log("ajklf data", res?.data?.data);
       dispatch(userLogin(res?.data?.data));
     }
-    setIsEditing(false)
-  }
+    setIsEditing(false);
+  };
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6 p-6">
@@ -147,7 +142,7 @@ const ProfileForm = ({
             className="flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
           >
             <Save className="w-4 h-4" />
-            <span>{isSubmitting ? 'Saving...' : 'Save'}</span>
+            <span>{isSubmitting ? "Saving..." : "Save"}</span>
           </button>
           <button
             onClick={onCancel}
@@ -166,8 +161,15 @@ const ProfileForm = ({
           <div className="relative">
             <div className="w-24 h-24 rounded-full bg-gray-100 border-2 border-gray-200 flex items-center justify-center overflow-hidden">
               {/* Profile photo preview - replace with actual image when uploaded */}
-              {imagePreviewLink ? <img src={imagePreviewLink} alt="Profile" className="w-full h-full object-cover" /> : <User className="w-12 h-12 text-gray-400" />}
-              
+              {imagePreviewLink ? (
+                <img
+                  src={imagePreviewLink}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <User className="w-12 h-12 text-gray-400" />
+              )}
             </div>
             <button
               type="button"
@@ -177,7 +179,9 @@ const ProfileForm = ({
             </button>
           </div>
           <div className="flex-1">
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Profile Photo</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              Profile Photo
+            </h3>
             <div className="flex items-center space-x-3">
               <label className="cursor-pointer">
                 <input
@@ -219,43 +223,49 @@ const ProfileForm = ({
               Email Address
             </label>
             <input
-              {...register("email", { 
+              {...register("email", {
                 required: "Email is required",
                 pattern: {
                   value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                  message: "Invalid email address"
-                }
+                  message: "Invalid email address",
+                },
               })}
               disabled={true}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Enter your email"
             />
             {errors.email && (
-              <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+              <p className="text-red-500 text-sm mt-1">
+                {errors.email.message}
+              </p>
             )}
           </div>
         </div>
 
         <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Bio
-            </label>
-            <textarea
-              {...register("description", { 
-                required: "Bio is required",
-              })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Tell something about yourself"
-            />
-            {errors.description && (
-              <p className="text-red-500 text-sm mt-1">{errors.description.message}</p>
-            )}
-          </div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Bio
+          </label>
+          <textarea
+            {...register("description", {
+              required: "Bio is required",
+            })}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="Tell something about yourself"
+          />
+          {errors.description && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.description.message}
+            </p>
+          )}
+        </div>
 
         {/* Job Preferences */}
         <div className="border-t pt-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Job Preferences</h3>
-          
+          <h3 className="text-lg font-medium text-gray-900 mb-4">
+            Job Preferences
+          </h3>
+
           {/* Preferred Roles */}
           <div className="mb-6">
             <div className="flex items-center justify-between mb-2">
@@ -276,7 +286,7 @@ const ProfileForm = ({
                 <div key={field.id} className="flex items-center space-x-2">
                   <input
                     {...register(`jobPreferences.roles.${index}`, {
-                      required: "Role cannot be empty"
+                      required: "Role cannot be empty",
                     })}
                     className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="e.g., Frontend Developer"
@@ -291,7 +301,9 @@ const ProfileForm = ({
                 </div>
               ))}
               {fields.length === 0 && (
-                <p className="text-gray-500 text-sm">No roles added yet. Click "Add Role" to get started.</p>
+                <p className="text-gray-500 text-sm">
+                  No roles added yet. Click "Add Role" to get started.
+                </p>
               )}
             </div>
           </div>
@@ -300,12 +312,12 @@ const ProfileForm = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                <DollarSign className="w-4 h-4 inline mr-1" />
+                <IndianRupee className="w-4 h-4 inline mr-1" />
                 Expected Salary (Annual)
               </label>
               <input
                 {...register("jobPreferences.salaryExpectation", {
-                  min: { value: 0, message: "Salary must be positive" }
+                  min: { value: 0, message: "Salary must be positive" },
                 })}
                 type="number"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -390,7 +402,8 @@ const ProfileForm = ({
                     Upload your resume
                   </h4>
                   <p className="text-sm text-gray-600 mb-4">
-                    Drag and drop your file here, or <span className="text-blue-600 font-medium">browse</span>
+                    Drag and drop your file here, or{" "}
+                    <span className="text-blue-600 font-medium">browse</span>
                   </p>
                   <div className="flex items-center space-x-4 text-xs text-gray-500">
                     <span className="flex items-center">
@@ -405,21 +418,25 @@ const ProfileForm = ({
                 </div>
               </div>
             </div>
-            
+
             {/* File Preview Area */}
-            <div className="mt-4 p-4 bg-gray-50 rounded-lg border hidden" id="file-preview">
+            <div
+              className="mt-4 p-4 bg-gray-50 rounded-lg border hidden"
+              id="file-preview"
+            >
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
                     <FileText className="w-5 h-5 text-red-600" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-900">resume.pdf</p>
+                    <p className="text-sm font-medium text-gray-900">
+                      resume.pdf
+                    </p>
                     <p className="text-xs text-gray-500">2.4 MB</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
-                 
                   <button
                     type="button"
                     onClick={handleRemoveFile}
