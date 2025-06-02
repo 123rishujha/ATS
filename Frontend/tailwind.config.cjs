@@ -51,8 +51,12 @@ module.exports = {
           DEFAULT: "#FFFFFF",
           foreground: "#0F172A",
         },
+        navbar: {
+          DEFAULT: "#c2cad6",
+          foreground: "#0F172A",
+        },
         sidebar: {
-          DEFAULT: "#94A3B8",
+          DEFAULT: "#d1d7e0",
           foreground: "#0F172A",
           primary: "#2563EB",
           "primary-foreground": "#FFFFFF",

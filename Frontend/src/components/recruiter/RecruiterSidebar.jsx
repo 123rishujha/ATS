@@ -1,5 +1,5 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
   Briefcase,
@@ -11,24 +11,24 @@ import {
 import { cn } from "@/lib/utils";
 
 const RecruiterSidebar = ({ isOpen }) => {
+  const location = useLocation();
+  console.log("location", location);
+
   const navItems = [
     {
       title: "Dashboard",
       icon: LayoutDashboard,
       path: "/recruiter",
-      matchString: "recruiter",
     },
     {
       title: "Job Posts",
       icon: Briefcase,
       path: "/recruiter/jobpost",
-      matchString: "jobpost",
     },
     {
       title: "Candidates",
       icon: Users,
       path: "/recruiter/candidates",
-      matchString: "candidates",
     },
     // {
     //   title: "Applications",
@@ -50,7 +50,7 @@ const RecruiterSidebar = ({ isOpen }) => {
   return (
     <aside
       className={cn(
-        "fixed top-16 left-0 h-[calc(100vh-4rem)] w-64 bg-gray-50 border-r transition-transform duration-300 ease-in-out z-40",
+        "fixed top-16 left-0 h-[calc(100vh-4rem)] w-64 bg-sidebar border-r transition-transform duration-300 ease-in-out z-40",
         isOpen ? "translate-x-0" : "-translate-x-full",
         "lg:translate-x-0"
       )}
@@ -60,14 +60,15 @@ const RecruiterSidebar = ({ isOpen }) => {
           <NavLink
             key={item.path}
             to={item.path}
-            className={({ isActive }) =>
+            className={({}) =>
               cn(
                 "flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors",
-                isActive
+                location.pathname.endsWith(item.path)
                   ? "bg-blue-50 text-blue-700"
                   : "text-gray-700 hover:bg-gray-100"
               )
             }
+            end={item.path === "/recruiter" ? true : false}
           >
             <item.icon className="h-5 w-5" />
             {item.title}

@@ -223,10 +223,12 @@ const Candidates = () => {
               <SelectContent>
                 <SelectItem value="all">All</SelectItem>
                 <SelectItem value="applied">Applied</SelectItem>
-                <SelectItem value="under_review">Under Review</SelectItem>
-                <SelectItem value="interviewed">Interviewed</SelectItem>
+                <SelectItem value="interview_scheduled">
+                  Interview scheduled
+                </SelectItem>
+                <SelectItem value="interview_done">Interview done</SelectItem>
                 <SelectItem value="rejected">Rejected</SelectItem>
-                <SelectItem value="hired">Hired</SelectItem>
+                <SelectItem value="offered">Offered</SelectItem>
               </SelectContent>
             </Select>
           </div>
