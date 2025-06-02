@@ -58,11 +58,15 @@ import {
 } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import useS3Upload from "@/hooks/useS3Upload";
 
 const CandidatesView = () => {
+  const [filePreviewLink, setFilePreviewLink] = useState("");
+  const [selectedAction, setSelectedAction] = useState(null);
   const { candidateId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const { handleUploadFileS3 } = useS3Upload();
   const jobId = location.state?.jobId;
 
   const {
@@ -235,7 +239,68 @@ const CandidatesView = () => {
     }
   };
 
+  const handleOfferUpload = async (e) => {
+    const files = e.target.files;
+    if (files?.length > 0) {
+      try {
+        const res = await handleUploadFileS3(files[0], "offer");
+        if (res?.previewLink) {
+          setFilePreviewLink(res.previewLink);
+        }
+      } catch (error) {
+        console.error("Upload error:", error);
+      }
+    }
+  };
+
+  const handleHire = async () => {
+    if (!filePreviewLink) {
+      toast.error("Please upload an offer letter first");
+      return;
+    }
+    const body = {
+      status: "offered",
+      offerLetter: {
+        url: filePreviewLink || "",
+      },
+    };
+
+    try {
+      await updateApplicationApi({
+        url: `/${application._id}`,
+        method: "PUT",
+        body: body,
+      }).unwrap();
+      refetchApplication();
+      setSelectedAction(null);
+    } catch (error) {
+      toast.error(error?.data?.msg || "Failed to save feedback");
+    } finally {
+      setIsSavingFeedback(false);
+    }
+  };
+
+  const handleReject = async () => {
+    const body = {
+      status: "rejected",
+    };
+    try {
+      await updateApplicationApi({
+        url: `/${application._id}`,
+        method: "PUT",
+        body: body,
+      }).unwrap();
+      refetchApplication();
+      setSelectedAction(null);
+    } catch (error) {
+      toast.error(error?.data?.msg || "Failed to save feedback");
+    } finally {
+      setIsSavingFeedback(false);
+    }
+  };
+
   const hasMeetingScheduled = application.interview?.zoomLink;
+  const offerLetter = application.offerLetter;
   const hasFeedback = application.interview?.feedback?.trim();
 
   const getStatusColor = (status) => {
@@ -293,6 +358,7 @@ const CandidatesView = () => {
                       <AvatarImage
                         src={candidate.userPhoto}
                         alt={candidate.name}
+                        className="object-cover"
                       />
                       <AvatarFallback className="text-2xl font-bold bg-gradient-to-br from-primary to-primary/80 text-primary-foreground">
                         {getInitials(candidate.name)}
@@ -434,32 +500,6 @@ const CandidatesView = () => {
                       </div>
                     )}
                   </div>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-
-          {/* Right Column - Actions and Details */}
-          <div className="space-y-6">
-            {/* Resume Card */}
-            {candidate.resume?.url && (
-              <Card className="shadow-lg border-0 bg-card/70 backdrop-blur-sm">
-                <CardHeader>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center">
-                      <FileDown className="h-5 w-5 text-primary-foreground" />
-                    </div>
-                    <CardTitle className="text-lg">Resume</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <Button
-                    onClick={() => window.open(candidate.resume.url, "_blank")}
-                    className="w-full shadow-lg hover:shadow-xl transition-all duration-200"
-                  >
-                    <FileDown className="h-4 w-4 mr-2" />
-                    Download Resume
-                  </Button>
                 </CardContent>
               </Card>
             )}
@@ -681,6 +721,32 @@ const CandidatesView = () => {
                 )}
               </CardContent>
             </Card>
+          </div>
+
+          {/* Right Column - Actions and Details */}
+          <div className="space-y-6">
+            {/* Resume Card */}
+            {candidate.resume?.url && (
+              <Card className="shadow-lg border-0 bg-card/70 backdrop-blur-sm">
+                <CardHeader>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center">
+                      <FileDown className="h-5 w-5 text-primary-foreground" />
+                    </div>
+                    <CardTitle className="text-lg">Resume</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <Button
+                    onClick={() => window.open(candidate.resume.url, "_blank")}
+                    className="w-full shadow-lg hover:shadow-xl transition-all duration-200"
+                  >
+                    <FileDown className="h-4 w-4 mr-2" />
+                    Download Resume
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Application Timeline Card */}
             <Card className="shadow-lg border-0 bg-card/70 backdrop-blur-sm">
@@ -756,6 +822,224 @@ const CandidatesView = () => {
                 )}
               </CardContent>
             </Card>
+
+            {offerLetter?.url && (
+              <Card className="shadow-lg border-0 bg-card/70 backdrop-blur-sm p-6">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center">
+                        <FileDown className="h-5 w-5 text-primary-foreground" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-800">
+                          Offer Letter Sent!
+                        </h3>
+                        <p className="text-xs text-gray-500">
+                          Status:{" "}
+                          {offerLetter?.accepted
+                            ? "Accepted"
+                            : "Pending Candidate Decision"}
+                        </p>
+                      </div>
+                    </div>
+                    <Badge
+                      className={`px-3 py-1 ${
+                        offerLetter?.accepted
+                          ? "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800"
+                          : "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800"
+                      }`}
+                    >
+                      {offerLetter?.accepted ? "Accepted" : "Pending"}
+                    </Badge>
+                  </div>
+
+                  <div className="flex items-center gap-4 p-4 bg-muted/50 rounded-lg border border-border">
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-gray-700">
+                        Offer Letter Document
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        Uploaded on{" "}
+                        {format(
+                          new Date(offerLetter?.createdAt || new Date()),
+                          "MMM do, yyyy"
+                        )}
+                      </p>
+                    </div>
+                    <Button
+                      onClick={() => window.open(offerLetter.url, "_blank")}
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                    >
+                      <FileDown className="h-4 w-4 mr-2" />
+                      Download
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+            )}
+
+            {/* Offer Letter */}
+            {hasMeetingScheduled && !offerLetter?.url && (
+              <Card className="shadow-lg border-0 bg-card/70 backdrop-blur-sm p-6">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center">
+                        <CheckCircle className="h-5 w-5 text-primary-foreground" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-800">
+                          Final Decision
+                        </h3>
+                        <p className="text-sm text-gray-500">
+                          Make your decision about the candidate
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col space-y-4">
+                    {!selectedAction ? (
+                      <div className="flex flex-col items-center gap-4">
+                        <Button
+                          onClick={() => setSelectedAction("hire")}
+                          className="w-[230px] bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg flex items-center gap-2"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                          Hire Candidate
+                        </Button>
+
+                        <Button
+                          onClick={() => setSelectedAction("reject")}
+                          className="w-[230px] bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg flex items-center gap-2"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                          Reject Candidate
+                        </Button>
+                      </div>
+                    ) : selectedAction === "hire" ? (
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                              <FileDown className="h-4 w-4 text-green-600" />
+                            </div>
+                            <h4 className="text-md font-medium text-gray-700">
+                              Upload Offer Letter
+                            </h4>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            onClick={() => setSelectedAction(null)}
+                            className="text-gray-500 hover:text-gray-700"
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <label className="flex-1 cursor-pointer">
+                            <div className="flex items-center justify-center px-6 py-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-gray-400 transition-colors bg-muted/30">
+                              <div className="flex items-center gap-2">
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="h-6 w-6 text-gray-400"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke="currentColor"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                                  />
+                                </svg>
+                                <span className="text-gray-600">
+                                  {filePreviewLink
+                                    ? "File uploaded"
+                                    : "Click to upload or drag and drop"}
+                                </span>
+                              </div>
+                              <input
+                                type="file"
+                                className="hidden"
+                                onChange={handleOfferUpload}
+                                accept=".pdf,.doc,.docx"
+                              />
+                            </div>
+                          </label>
+                        </div>
+                        <p className="text-sm text-gray-500">
+                          PDF, DOC, or DOCX up to 10MB
+                        </p>
+                        <Button
+                          onClick={handleHire}
+                          disabled={!filePreviewLink}
+                          className="w-full bg-green-600 hover:bg-green-700 text-white"
+                        >
+                          Submit Offer
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                              <AlertCircle className="h-4 w-4 text-red-600" />
+                            </div>
+                            <h4 className="text-md font-medium text-gray-700">
+                              Confirm Rejection
+                            </h4>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            onClick={() => setSelectedAction(null)}
+                            className="text-gray-500 hover:text-gray-700"
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                        <div className="p-4 bg-red-50 rounded-lg border border-red-100">
+                          <p className="text-sm text-red-800">
+                            Are you sure you want to reject this candidate? This
+                            action cannot be undone.
+                          </p>
+                        </div>
+                        <Button
+                          onClick={handleReject}
+                          className="w-full bg-red-600 hover:bg-red-700 text-white"
+                        >
+                          Confirm Rejection
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </Card>
+            )}
           </div>
         </div>
       </div>

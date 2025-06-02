@@ -235,7 +235,7 @@ const updateApplication = async (req, res, next) => {
       return res.status(403).json({ success: false, msg: "Unauthorized." });
     }
     await application.save();
-    res.json({ success: true, data: application });
+    res.json({ success: true, data: application, msg: "Updated Successfully" });
   } catch (err) {
     next(err);
   }
@@ -367,6 +367,129 @@ const getApplicationsByJobId = async (req, res, next) => {
   }
 };
 
+// GET SINGLE application by jobId and candidateId (recruiter/jobseeker of job/application)
+const getApplicationByJobAndCandidateId = async (req, res, next) => {
+  try {
+    const { jobId, candidateId } = req.params;
+
+    // Use aggregation to get the same structure as getAllApplications
+    const applications = await ApplicationModel.aggregate([
+      {
+        $match: {
+          jobId: new mongoose.Types.ObjectId(jobId),
+          candidateId: new mongoose.Types.ObjectId(candidateId),
+        },
+      },
+      {
+        $lookup: {
+          from: "jobposts",
+          localField: "jobId",
+          foreignField: "_id",
+          as: "job",
+        },
+      },
+      {
+        $unwind: "$job",
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "candidateId",
+          foreignField: "_id",
+          as: "candidate",
+        },
+      },
+      {
+        $unwind: "$candidate",
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "job.recruiterId",
+          foreignField: "_id",
+          as: "company",
+        },
+      },
+      {
+        $unwind: "$company",
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "interview.interviewerId",
+          foreignField: "_id",
+          as: "interviewer",
+        },
+      },
+      {
+        $unwind: {
+          path: "$interviewer",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          status: 1,
+          aiFitScore: 1,
+          createdAt: 1,
+          updatedAt: 1,
+          "job._id": 1,
+          "job.title": 1,
+          "job.company": 1,
+          "job.location": 1,
+          "job.jobType": 1,
+          "job.salaryRange": 1,
+          "job.description": 1,
+          "job.requiredSkills": 1,
+          "job.experienceRequired": 1,
+          "company._id": 1,
+          "company.name": 1,
+          "company.email": 1,
+          "company.companyName": 1,
+          "company.companyLogo": 1,
+          "company.companyWebsite": 1,
+          "company.companyDescription": 1,
+          "company.companyLocation": 1,
+          "candidate._id": 1,
+          "candidate.name": 1,
+          "candidate.email": 1,
+          "candidate.resume": 1,
+          "interview.scheduledAt": 1,
+          "interview.zoomLink": 1,
+          "interview.feedback": 1,
+          "interview.feedbackSummary": 1,
+          "interviewer._id": 1,
+          "interviewer.name": 1,
+          "interviewer.email": 1,
+          "offerLetter.url": 1,
+          "offerLetter.accepted": 1,
+          "offerLetter.respondedAt": 1,
+        },
+      },
+      {
+        $limit: 1, // Limit to one result as we expect a single application
+      },
+    ]);
+
+    const application = applications.length > 0 ? applications[0] : null;
+
+    if (!application) {
+      return res
+        .status(404)
+        .json({ success: false, msg: "Application not found." });
+    }
+
+    res.json({
+      success: true,
+      data: application,
+      msg: "Application Fetched Successfully!",
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   createApplication,
   getAllApplications,
@@ -374,4 +497,5 @@ module.exports = {
   updateApplication,
   getApplicationMatchScore,
   getApplicationsByJobId,
+  getApplicationByJobAndCandidateId,
 };

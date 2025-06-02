@@ -20,6 +20,7 @@ const applicationSchema = new mongoose.Schema(
         "shortlisted",
         "ai_screening",
         "interview_scheduled",
+        "interview_done",
         "rejected",
         "offered",
       ],
