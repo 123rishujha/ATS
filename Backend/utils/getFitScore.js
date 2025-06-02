@@ -27,6 +27,7 @@ async function extractTextFromPDF(filePath) {
 }
 
 const getFitScore = async (resumeUrl, jobDescription) => {
+  return 50;
   const filePath = await downloadResume(resumeUrl);
   const resumeText = await extractTextFromPDF(filePath);
 

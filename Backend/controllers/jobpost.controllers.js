@@ -44,7 +44,17 @@ const getRecruiterJobPosts = async (req, res, next) => {
 // READ ONE
 const getJobPostById = async (req, res, next) => {
   try {
-    const jobPost = await JobPostModel.findById(req.params.id);
+    const jobPost = await JobPostModel.findById(req.params.id).populate({
+      // path: "jobId",
+      // select:
+      //   "title company location jobType salaryRange experienceRequired description requirements recruiterId",
+      // populate: {
+      //   path: "recruiterId",
+      //   select: "name email company",
+      // },
+      path: "recruiterId",
+      select: "name email company",
+    });
     if (!jobPost)
       return res
         .status(404)
