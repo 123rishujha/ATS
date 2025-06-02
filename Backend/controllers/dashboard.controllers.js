@@ -198,6 +198,177 @@ const getRecruiterDashboard = async (req, res, next) => {
   }
 };
 
+const getJobSeekerDashboard = async (req, res, next) => {
+  try {
+    const candidateId = req.user._id;
+
+    // Get total applications
+    const totalApplications = await ApplicationModel.countDocuments({
+      candidateId,
+    });
+
+    // Get applications by status
+    const applicationsByStatus = await ApplicationModel.aggregate([
+      {
+        $match: {
+          candidateId: new mongoose.Types.ObjectId(candidateId),
+        },
+      },
+      {
+        $group: {
+          _id: "$status",
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    // Get recent applications
+    const recentApplications = await ApplicationModel.aggregate([
+      {
+        $match: {
+          candidateId: new mongoose.Types.ObjectId(candidateId),
+        },
+      },
+      {
+        $lookup: {
+          from: "jobposts",
+          localField: "jobId",
+          foreignField: "_id",
+          as: "job",
+        },
+      },
+      {
+        $unwind: "$job",
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "job.recruiterId",
+          foreignField: "_id",
+          as: "recruiter",
+        },
+      },
+      {
+        $unwind: "$recruiter",
+      },
+      {
+        $project: {
+          _id: 1,
+          status: 1,
+          createdAt: 1,
+          "job.title": 1,
+          "job.company": 1,
+          "job.location": 1,
+          "recruiter.company": 1,
+          "recruiter.companyLogo": 1,
+        },
+      },
+      {
+        $sort: { createdAt: -1 },
+      },
+      {
+        $limit: 5,
+      },
+    ]);
+
+    // Get upcoming interviews
+    const upcomingInterviews = await ApplicationModel.aggregate([
+      {
+        $match: {
+          candidateId: new mongoose.Types.ObjectId(candidateId),
+          status: "interview_scheduled",
+          "interview.scheduledAt": { $exists: true },
+        },
+      },
+      {
+        $lookup: {
+          from: "jobposts",
+          localField: "jobId",
+          foreignField: "_id",
+          as: "job",
+        },
+      },
+      {
+        $unwind: "$job",
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "job.recruiterId",
+          foreignField: "_id",
+          as: "recruiter",
+        },
+      },
+      {
+        $unwind: "$recruiter",
+      },
+      {
+        $project: {
+          _id: 1,
+          "interview.scheduledAt": 1,
+          "interview.zoomLink": 1,
+          "job.title": 1,
+          "job.company": 1,
+          "recruiter.company": 1,
+          "recruiter.companyLogo": 1,
+        },
+      },
+      {
+        $sort: { "interview.scheduledAt": 1 },
+      },
+      {
+        $limit: 3,
+      },
+    ]);
+
+    // Get application trends (last 6 months)
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+    const applicationTrends = await ApplicationModel.aggregate([
+      {
+        $match: {
+          candidateId: new mongoose.Types.ObjectId(candidateId),
+          createdAt: { $gte: sixMonthsAgo },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            year: { $year: "$createdAt" },
+            month: { $month: "$createdAt" },
+          },
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $sort: { "_id.year": 1, "_id.month": 1 },
+      },
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        totalApplications,
+        applicationsByStatus: applicationsByStatus.reduce((acc, curr) => {
+          acc[curr._id] = curr.count;
+          return acc;
+        }, {}),
+        recentApplications,
+        upcomingInterviews,
+        applicationTrends: applicationTrends.map((trend) => ({
+          month: `${trend._id.year}-${trend._id.month}`,
+          count: trend.count,
+        })),
+      },
+      msg: "Dashboard data fetched successfully!",
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   getRecruiterDashboard,
+  getJobSeekerDashboard,
 };

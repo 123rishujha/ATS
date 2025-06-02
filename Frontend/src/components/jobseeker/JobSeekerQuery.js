@@ -77,6 +77,12 @@ const jobseekerSlice = slice.injectEndpoints({
       },
       providesTags: ["seeker-job-application"],
     }),
+    getJobSeekerDashboard: builder.query({
+      query: () => ({
+        url: `api/dashboard/recruiter`,
+        method: "GET",
+      }),
+    }),
   }),
 });
 
@@ -88,4 +94,5 @@ export const {
   useJobApplicationOperMutation,
   useGetAllJobAppQuery,
   useGetApplicationByIdQuery,
+  useGetJobSeekerDashboardQuery,
 } = jobseekerSlice;
