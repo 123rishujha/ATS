@@ -8,7 +8,7 @@ import { lazy } from "react";
 import LandingPage from "./components/LandingPage";
 import NotFound from "./components/layouts/NotFound";
 import { ToastContainer } from "react-toastify";
-import { PublicOnlyRoute } from "./utils/RouteValidation";
+import ProtectedRoute, { PublicOnlyRoute } from "./utils/RouteValidation";
 
 const RecruiterRoutes = lazy(() =>
   import("./components/recruiter/RecruiterRoutes")
@@ -36,8 +36,22 @@ function App() {
                 </PublicOnlyRoute>
               }
             />
-            <Route path="jobseeker/*" element={<JobSeekerRoutes />} />
-            <Route path="recruiter/*" element={<RecruiterRoutes />} />
+            <Route
+              path="jobseeker/*"
+              element={
+                <ProtectedRoute>
+                  <JobSeekerRoutes />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="recruiter/*"
+              element={
+                <ProtectedRoute>
+                  <RecruiterRoutes />
+                </ProtectedRoute>
+              }
+            />
             <Route path="404" element={<NotFound />} />
             <Route path="*" element={<Navigate replace to="/404" />} />
           </Routes>
