@@ -37,7 +37,6 @@ const ProfileForm = ({ userState, setIsEditing, onCancel }) => {
   } = useForm({
     defaultValues: {
       name: userState.name,
-      description: userState.description,
       email: userState.email,
       userPhoto: userState.userPhoto,
       description: userState.description,
