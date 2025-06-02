@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
+  useGetAllJobAppQuery,
   useGetApplicationMatchScoreMutation,
   useGetJobPostByIdQuery,
   useJobApplicationOperMutation,
@@ -32,6 +33,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { cn } from "@/lib/utils";
 
 const JobDetails = () => {
   const { id } = useParams();
@@ -45,6 +47,8 @@ const JobDetails = () => {
     isError,
     error,
   } = useGetJobPostByIdQuery(id);
+
+  const { data: applications } = useGetAllJobAppQuery();
 
   const [getApplicationMatchScore, { isLoading: isMatchScoreLoading }] =
     useGetApplicationMatchScoreMutation();
@@ -148,6 +152,10 @@ const JobDetails = () => {
   if (!jobPost) {
     return <div>Job post not found.</div>;
   }
+
+  const isAlreadyApplied = applications?.filter(
+    (el) => el.job?._id === jobPost._id
+  )?.length;
 
   return (
     <div className="space-y-6">
@@ -313,12 +321,19 @@ const JobDetails = () => {
 
           <div className="pt-4">
             <Button
-              className="w-full sm:w-auto"
+              className={cn(
+                "w-full sm:w-auto",
+                isAlreadyApplied && "bg-green-500"
+              )}
               size="lg"
-              disabled={isApplying}
+              disabled={isApplying || isAlreadyApplied}
               onClick={() => handleApply()}
             >
-              {isApplying ? "Applying..." : "Apply Now"}
+              {isAlreadyApplied
+                ? "Already Applied"
+                : isApplying
+                ? "Applying..."
+                : "Apply Now"}
             </Button>
           </div>
         </CardContent>
