@@ -175,7 +175,18 @@ const getAllApplications = async (req, res, next) => {
 // GET ONE (candidate or recruiter of job)
 const getApplicationById = async (req, res, next) => {
   try {
-    const application = await ApplicationModel.findById(req.params.id);
+    const application = await ApplicationModel.findById(req.params.id).populate(
+      {
+        path: "jobId",
+        select:
+          "title company location jobType salaryRange experienceRequired description requirements recruiterId",
+        populate: {
+          path: "recruiterId",
+          select: "name email company",
+        },
+      }
+    );
+
     if (!application)
       return res
         .status(404)
@@ -236,6 +247,29 @@ const updateApplication = async (req, res, next) => {
     }
     await application.save();
     res.json({ success: true, data: application, msg: "Updated Successfully" });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const jobseekerAccpet_rejectApplication = async (req, res, next) => {
+  const { accepted } = req.body;
+  try {
+    const application = await ApplicationModel.findById(req.params.id);
+    if (!application)
+      return res
+        .status(404)
+        .json({ success: false, msg: "Application not found." });
+
+    application.offerLetter["accepted"] = accepted ? true : false;
+    application["status"] = accepted ? "accepted" : "rejected";
+
+    await application.save();
+    res.json({
+      success: true,
+      data: application,
+      msg: `${accepted ? "Accepted" : "Rejected"} Successfully`,
+    });
   } catch (err) {
     next(err);
   }
@@ -498,4 +532,5 @@ module.exports = {
   getApplicationMatchScore,
   getApplicationsByJobId,
   getApplicationByJobAndCandidateId,
+  jobseekerAccpet_rejectApplication,
 };

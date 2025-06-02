@@ -6,12 +6,12 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Eye } from "lucide-react";
 import DataTable from "@/utils/DataTable";
+import { Tooltip, TooltipTrigger } from "@/components/ui/tooltip";
+import { TooltipContent } from "@radix-ui/react-tooltip";
 
 const Applications = () => {
   const navigate = useNavigate();
   const { data: applications, isLoading } = useGetAllJobAppQuery();
-
-  console.log("ajldf applications", applications);
 
   const getStatusColor = (status) => {
     switch (status.toLowerCase()) {
@@ -65,13 +65,26 @@ const Applications = () => {
     {
       id: "actions",
       cell: ({ row }) => (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => navigate(`/jobseeker/jobs/${row.original.job._id}`)}
-        >
-          <Eye className="h-4 w-4" />
-        </Button>
+        <div>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() =>
+                  // navigate(`/jobseeker/jobs/${row.original.job._id}`)
+                  navigate(`/jobseeker/applications/${row.original._id}`)
+                }
+              >
+                <Eye className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              {/* <p>View Job Post</p> */}
+              <p>View Application</p>
+            </TooltipContent>
+          </Tooltip>
+        </div>
       ),
     },
   ];

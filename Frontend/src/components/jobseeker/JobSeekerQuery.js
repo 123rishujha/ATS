@@ -67,6 +67,16 @@ const jobseekerSlice = slice.injectEndpoints({
         return res.data || [];
       },
     }),
+    //Get all job applications
+    getApplicationById: builder.query({
+      query: (id) => {
+        return {
+          url: `api/applications/${id}`,
+          method: "GET",
+        };
+      },
+      providesTags: ["seeker-job-application"],
+    }),
   }),
 });
 
@@ -77,4 +87,5 @@ export const {
   useGetApplicationMatchScoreMutation,
   useJobApplicationOperMutation,
   useGetAllJobAppQuery,
+  useGetApplicationByIdQuery,
 } = jobseekerSlice;
