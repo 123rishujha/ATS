@@ -9,14 +9,17 @@ import LandingPage from "./components/LandingPage";
 import NotFound from "./components/layouts/NotFound";
 import { ToastContainer } from "react-toastify";
 import ProtectedRoute, { PublicOnlyRoute } from "./utils/RouteValidation";
+import AuthRoutes from "./components/auth/AuthRoutes";
+import JobSeekerRoutes from "./components/jobseeker/JobseekerRoutes";
+import RecruiterRoutes from "./components/recruiter/RecruiterRoutes";
 
-const RecruiterRoutes = lazy(() =>
-  import("./components/recruiter/RecruiterRoutes")
-);
-const AuthRoutes = lazy(() => import("./components/auth/AuthRoutes"));
-const JobSeekerRoutes = lazy(() =>
-  import("./components/jobseeker/JobSeekerRoutes")
-);
+// const RecruiterRoutes = lazy(() =>
+//   import("./components/recruiter/RecruiterRoutes")
+// );
+// const AuthRoutes = lazy(() => import("./components/auth/AuthRoutes"));
+// const JobSeekerRoutes = lazy(() =>
+//   import("./components/jobseeker/JobSeekerRoutes")
+// );
 
 function App() {
   return (
