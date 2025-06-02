@@ -24,21 +24,17 @@ const RichTextEditor = ({
 }) => {
   const editor = useMemo(() => withHistory(withReact(createEditor())), []);
 
-  // Custom paste handler
   const handlePaste = useCallback(
     (event) => {
       const text =
         event.clipboardData.getData("text/html") ||
         event.clipboardData.getData("text/plain");
 
-      // Prevent default paste
       event.preventDefault();
 
-      // Parse the pasted content
       const parser = new DOMParser();
       const doc = parser.parseFromString(text, "text/html");
 
-      // Convert HTML to Slate nodes
       const fragment = [];
       doc.body.childNodes.forEach((node) => {
         if (node.nodeName === "P") {
@@ -77,51 +73,60 @@ const RichTextEditor = ({
         }
       });
 
-      // Insert the fragment at the current selection
       Transforms.insertFragment(editor, fragment);
     },
     [editor]
   );
 
-  // Custom key handler for backspace
-  const handleKeyDown = useCallback(
-    (event) => {
-      if (event.key === "Backspace") {
-        const { selection } = editor;
+  // const handleKeyDown = useCallback(
+  //   (event) => {
+  //     if (event.key === "Enter") {
+  //       // Create a new paragraph node
+  //       const newParagraph = {
+  //         type: "paragraph",
+  //         children: [{ text: "" }],
+  //       };
 
-        if (selection && selection.focus.offset === 0) {
-          const [node] = Editor.node(editor, selection.focus.path);
+  //       // Insert the new paragraph at the current selection
+  //       Transforms.insertNodes(editor, newParagraph);
 
-          // Handle backspace at the start of a list item
-          if (node.type === "list-item") {
-            event.preventDefault();
-            Editor.unwrapNodes(editor, {
-              match: (n) =>
-                n.type === "bulleted-list" || n.type === "numbered-list",
-              split: true,
-            });
-            Editor.setNodes(editor, { type: "paragraph" });
-            return;
-          }
+  //       // Move the selection to the new paragraph
+  //       Transforms.move(editor);
 
-          // Handle backspace at the start of a heading
-          if (node.type === "heading-two") {
-            event.preventDefault();
-            Editor.setNodes(editor, { type: "paragraph" });
-            return;
-          }
-        }
-      }
-    },
-    [editor]
-  );
+  //       // Prevent the default Enter behavior
+  //       event.preventDefault();
+  //     } else if (event.key === "Backspace") {
+  //       const { selection } = editor;
 
-  // Log the incoming value prop whenever it changes
+  //       if (selection && selection.focus.offset === 0) {
+  //         const [node] = Editor.node(editor, selection.focus.path);
+
+  //         if (node.type === "list-item") {
+  //           event.preventDefault();
+  //           Transforms.unwrapNodes(editor, {
+  //             match: (n) =>
+  //               n.type === "bulleted-list" || n.type === "numbered-list",
+  //             split: true,
+  //           });
+  //           Transforms.setNodes(editor, { type: "paragraph" });
+  //           return;
+  //         }
+
+  //         if (node.type === "heading-two") {
+  //           event.preventDefault();
+  //           Transforms.setNodes(editor, { type: "paragraph" });
+  //           return;
+  //         }
+  //       }
+  //     }
+  //   },
+  //   [editor]
+  // );
+
   useEffect(() => {
     console.log("RichTextEditor - Incoming Value:", value);
   }, [value]);
 
-  // Log the internal editor value whenever it changes
   useEffect(() => {
     console.log("RichTextEditor - Internal Editor Value:", editor.children);
   }, [editor.children]);
@@ -185,22 +190,26 @@ const RichTextEditor = ({
     const isActive = isBlockActive(format);
     const isList = format === "bulleted-list" || format === "numbered-list";
 
-    Editor.unwrapNodes(editor, {
-      match: (n) => ["bulleted-list", "numbered-list"].includes(n.type),
+    Transforms.unwrapNodes(editor, {
+      match: (n) =>
+        SlateElement.isElement(n) &&
+        ["bulleted-list", "numbered-list"].includes(n.type),
       split: true,
     });
 
-    Editor.setNodes(
+    Transforms.setNodes(
       editor,
       {
         type: isActive ? "paragraph" : isList ? "list-item" : format,
       },
-      { match: (n) => Editor.isBlock(editor, n) }
+      { match: (n) => SlateElement.isElement(n) && Editor.isBlock(editor, n) }
     );
 
     if (!isActive && isList) {
       const block = { type: format, children: [] };
-      Editor.wrapNodes(editor, block);
+      Transforms.wrapNodes(editor, block, {
+        match: (n) => SlateElement.isElement(n) && n.type === "list-item",
+      });
     }
   };
 
@@ -216,7 +225,7 @@ const RichTextEditor = ({
     const [match] = Array.from(
       Editor.nodes(editor, {
         at: Editor.unhangRange(editor, selection),
-        match: (n) => n.type === format,
+        match: (n) => SlateElement.isElement(n) && n.type === format,
       })
     );
 
@@ -267,19 +276,37 @@ const RichTextEditor = ({
           <ListOrdered className="h-4 w-4" />
         </Button>
       </div>
-      <Slate
-        editor={editor}
-        initialValue={value}
-        value={value || initialValue}
-        onChange={onChange}
-      >
+      <Slate editor={editor} initialValue={value} onChange={onChange}>
         <Editable
           renderElement={renderElement}
           renderLeaf={renderLeaf}
           placeholder={placeholder}
-          className="p-4 min-h-[200px] prose prose-sm max-w-none focus:outline-none"
+          // className="min-h-[200px] prose prose-sm max-w-none focus:outline-none"
           onPaste={handlePaste}
-          onKeyDown={handleKeyDown}
+          // onKeyDown={handleKeyDown}
+          className="nopan nodrag custom_editable"
+          style={{
+            minHeight: "50px",
+            maxHeight: "130px",
+            cursor: "text",
+            padding: "8px",
+            borderRadius: "4px",
+            overflowY: "auto",
+            border: "none",
+            outline: "none",
+          }}
+          onFocus={(e) => {
+            e.target.style.borderWidth = "2px";
+            e.target.style.borderStyle = "solid";
+            e.target.style.borderColor = "var(--primary-main)";
+            e.target.style.outline = "var(--primary-main)";
+          }}
+          onBlur={(e) => {
+            e.target.style.borderWidth = "1px";
+            e.target.style.borderStyle = "solid";
+            e.target.style.borderColor = "var(--secondary-dark)";
+            e.target.style.outline = "var(--secondary-dark)";
+          }}
         />
       </Slate>
     </div>

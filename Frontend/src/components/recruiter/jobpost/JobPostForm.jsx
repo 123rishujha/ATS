@@ -37,6 +37,7 @@ import {
   useJobPostOperMutation,
 } from "../RecruiterQuery";
 import { Checkbox } from "@/components/ui/checkbox";
+// import SlateEditor from "@/components/common/SlateEditor/Editor";
 
 const jobPostSchema = z.object({
   title: z.string().min(1, "Title is required"),

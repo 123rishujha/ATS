@@ -8,7 +8,16 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Briefcase, MapPin, Wallet, Target } from "lucide-react";
+import {
+  ArrowLeft,
+  Briefcase,
+  MapPin,
+  Wallet,
+  Target,
+  Building2,
+  Globe,
+  FileText,
+} from "lucide-react";
 import { formatSalary } from "@/utils/formatSalary";
 import { Progress } from "@/components/ui/progress";
 import ViewOnlyEditor from "@/components/common/ViewOnlyEditor";
@@ -17,6 +26,12 @@ import ViewOnlyEditor from "@/components/common/ViewOnlyEditor";
 import { Node } from "slate";
 import { useSelector } from "react-redux";
 import EnhancedProgressBar from "./MatchScore";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 const JobDetails = () => {
   const { id } = useParams();
@@ -210,6 +225,69 @@ const JobDetails = () => {
             </div>
           </div>
         </CardHeader>
+
+        <CardContent className="space-y-6">
+          {/* Company Details Section */}
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="company-details">
+              <AccordionTrigger className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-secondary to-secondary/80 rounded-lg flex items-center justify-center">
+                  <Building2 className="h-5 w-5 text-secondary-foreground" />
+                </div>
+                <h3 className="text-lg font-semibold">Company Details</h3>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <Building2 className="h-4 w-4" />
+                      <p className="font-medium">Company Name</p>
+                    </div>
+                    <p className="text-foreground">
+                      {jobPost.recruiterId.company.name}
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <MapPin className="h-4 w-4" />
+                      <p className="font-medium">Location</p>
+                    </div>
+                    <p className="text-foreground">
+                      {jobPost.recruiterId.company.location}
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <Globe className="h-4 w-4" />
+                      <p className="font-medium">Website</p>
+                    </div>
+                    <a
+                      href={jobPost.recruiterId.company.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline"
+                    >
+                      {jobPost.recruiterId.company.website}
+                    </a>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <FileText className="h-4 w-4" />
+                      <p className="font-medium">Description</p>
+                    </div>
+                    <p className="text-foreground">
+                      {jobPost.recruiterId.company.description}
+                    </p>
+                  </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </CardContent>
+
         <CardContent className="space-y-6">
           <div>
             <h3 className="text-lg font-semibold mb-4">Description</h3>
