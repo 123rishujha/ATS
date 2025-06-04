@@ -37,6 +37,7 @@ import {
   useJobPostOperMutation,
 } from "../RecruiterQuery";
 import { Checkbox } from "@/components/ui/checkbox";
+import { slateToPlainText } from "@/functions/slateToPlainText";
 // import SlateEditor from "@/components/common/SlateEditor/Editor";
 
 const jobPostSchema = z.object({
@@ -138,14 +139,15 @@ const JobPostForm = () => {
   }, [isEdit, jobPostData, form]);
 
   const onSubmit = async (data) => {
-    // Added console log for form errors
+    const plainTextDescription = slateToPlainText(data.description);
+
     try {
       setIsSubmitting(true);
       if (isEdit) {
         await jobPostOperation({
           args: `/${id}`,
           method: "PUT",
-          body: data,
+          body: { ...data, plainTextDescription },
         }).unwrap();
         toast.success("Job post updated successfully");
       } else {
@@ -196,7 +198,11 @@ const JobPostForm = () => {
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-6"
+            key={jobPostData}
+          >
             <FormField
               control={form.control}
               name="title"
@@ -219,7 +225,7 @@ const JobPostForm = () => {
                   <FormLabel>Job Description</FormLabel>
                   <FormControl>
                     <RichTextEditor
-                      key={jobPostData}
+                      key={JSON.stringify(jobPostData)}
                       value={field.value}
                       onChange={field.onChange}
                       placeholder="Write detailed job description..."

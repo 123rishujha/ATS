@@ -55,4 +55,4 @@ const getFitScore = async (resumeUrl, jobDescription) => {
   return score;
 };
 
-module.exports = { getFitScore };
+module.exports = { getFitScore, extractTextFromPDF, downloadResume };
