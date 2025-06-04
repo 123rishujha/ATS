@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { main_backend_url } from "@/imports/mainExports";
+import ReactMarkdown from "react-markdown";
 
 const CandidateChat = () => {
   const { applicationId } = useParams();
@@ -41,7 +42,7 @@ const CandidateChat = () => {
 
   return (
     <div className="max-w-2xl mx-auto mt-8">
-      <h2 className="text-xl font-bold mb-4">Candidate Chat</h2>
+      <h2 className="text-xl font-bold mb-4">How can I help you today:)</h2>
       <div className="bg-gray-100 p-4 rounded-md h-[400px] overflow-y-auto">
         {messages.map((msg, i) => (
           <div
@@ -55,7 +56,11 @@ const CandidateChat = () => {
                 msg.sender === "user" ? "bg-blue-500 text-white" : "bg-gray-300"
               }`}
             >
-              {msg.text}
+              {msg.sender === "bot" ? (
+                <ReactMarkdown>{msg.text}</ReactMarkdown>
+              ) : (
+                msg.text
+              )}
             </span>
           </div>
         ))}
