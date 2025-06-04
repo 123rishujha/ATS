@@ -95,6 +95,10 @@ The system leverages OpenAI's GPT models to provide the following AI-powered fea
 
 - Extracts relevant information from uploaded resumes including skills, experience, and education.
 
+### 4. Recruiter ai chat regarding application
+
+- Recruiter can chat with ai bot regarding any job application
+
 ## 🔧 Tech Stack
 
 - **Frontend**: React, Vite, Redux Toolkit, TailwindCSS, Radix UI
