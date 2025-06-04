@@ -5,6 +5,8 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import { main_backend_url } from "@/imports/mainExports";
 import ReactMarkdown from "react-markdown";
+import { Bot } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const CandidateChat = () => {
   const { applicationId } = useParams();

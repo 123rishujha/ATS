@@ -9,6 +9,7 @@ import ProtectedRoute from "@/utils/RouteValidation";
 import CandidatesView from "./candidates/CandidatesView";
 import Dashboard from "./dashboard/Dashboard";
 import CandidateChat from "./candidates/CandidateChat";
+import GlobalApplicationChat from "./candidates/GlobalApplicationChat";
 
 const RecruiterRoutes = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -77,6 +78,10 @@ const RecruiterRoutes = () => {
                 <Route
                   path="/candidates/:applicationId/chat"
                   element={<CandidateChat />}
+                />
+                <Route
+                  path="/candidates/global-chat"
+                  element={<GlobalApplicationChat />}
                 />
               </Routes>
             </div>

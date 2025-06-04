@@ -3,6 +3,7 @@ const { EmbeddingModel } = require("../models/embedding.model");
 const { getAiFeedback } = require("../utils/aiFeedback");
 
 const { OpenAI } = require("openai");
+const { cosineSimilarity } = require("../utils/cosineSimilarity");
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 const chatWithCandidate = async (req, res, next) => {
@@ -68,6 +69,64 @@ const chatWithCandidate = async (req, res, next) => {
   }
 };
 
+const globalAiChat = async (req, res, next) => {
+  try {
+    const { query } = req.body;
+    const { jobPostId } = req.params;
+
+    const queryEmbedding = (
+      await openai.embeddings.create({
+        model: "text-embedding-3-small",
+        input: query,
+      })
+    ).data[0].embedding;
+
+    const applications = await ApplicationModel.find({ jobId: jobPostId });
+
+    const appIdList = applications.map((app) => app._id.toString());
+
+    const embeddings = await EmbeddingModel.find({
+      entityType: "application",
+      sourceId: { $in: appIdList },
+    });
+
+    if (!embeddings.length)
+      return res
+        .status(404)
+        .json({ success: false, msg: "No embeddings found." });
+
+    const results = embeddings.map((doc) => {
+      const score = cosineSimilarity(queryEmbedding, doc.embedding);
+      return { score, text: doc.text };
+    });
+
+    const topK = results.sort((a, b) => b.score - a.score).slice(0, 5); // No filtering
+
+    const contextText = topK.map((r) => r.text).join("\n\n---\n\n");
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4",
+      messages: [
+        {
+          role: "system",
+          content: `You are an AI assistant helping recruiters analyze candidate applications. ONLY use the given data. DO NOT assume anything outside the data.`,
+        },
+        {
+          role: "user",
+          content: `Here are top relevant candidate application data:\n\n${contextText}\n\nNow answer this query:\n"${query}"\n\nIf no candidate matches based on the visible data (not logic), clearly say: "No candidates matched your query based on available application data."`,
+        },
+      ],
+    });
+
+    const answer = completion.choices[0].message.content;
+
+    res.status(200).json({ success: true, answer });
+  } catch (err) {
+    console.error("Global AI Chat error:", err);
+    next(err);
+  }
+};
+
 const processAiFeedback = async (req, res, next) => {
   try {
     const { transcript } = req.body;
@@ -96,4 +155,5 @@ const processAiFeedback = async (req, res, next) => {
 module.exports = {
   chatWithCandidate,
   processAiFeedback,
+  globalAiChat,
 };

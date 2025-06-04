@@ -21,14 +21,22 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { format } from "date-fns";
-import { Bot, CalendarIcon, Eye, FileDown } from "lucide-react";
+import { Bot, CalendarIcon, Eye, FileDown, MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useGetRecruiterJobPostsQuery } from "../RecruiterQuery";
 import { useGetApplicationsByJobIdMutation } from "../RecruiterQuery";
 import { Badge } from "@/components/ui/badge";
 import DataTable from "@/utils/DataTable";
 import { useNavigate } from "react-router-dom";
+import GlobalApplicationChat from "./GlobalApplicationChat";
 
 const Candidates = () => {
   const { data: jobPosts, isLoading: isLoadingJobPosts } =
@@ -53,6 +61,7 @@ const Candidates = () => {
   });
 
   const navigate = useNavigate();
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   const handleJobChange = (jobId) => {
     setSelectedJob(jobId);
@@ -201,117 +210,139 @@ const Candidates = () => {
   const isLoading = isLoadingJobPosts || isLoadingApplications;
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Candidates</CardTitle>
-        <CardDescription>View and manage job applications.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="flex flex-col md:flex-row gap-4 mb-6">
-          <div className="flex-1">
-            <Select onValueChange={handleJobChange} value={selectedJob}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a job" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">Select a job</SelectItem>
-                {jobPosts?.data?.map((job) => (
-                  <SelectItem key={job._id} value={job._id}>
-                    {job.title}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex-1">
-            <Select onValueChange={handleStatusChange} value={selectedStatus}>
-              <SelectTrigger>
-                <SelectValue placeholder="Filter by status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="applied">Applied</SelectItem>
-                <SelectItem value="interview_scheduled">
-                  Interview scheduled
-                </SelectItem>
-                <SelectItem value="interview_done">Interview done</SelectItem>
-                <SelectItem value="rejected">Rejected</SelectItem>
-                <SelectItem value="offered">Offered</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex-1 flex gap-4">
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant={"outline"}
-                  className={cn(
-                    "w-full justify-start text-left font-normal",
-                    !startDate && "text-muted-foreground"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {startDate ? (
-                    format(startDate, "PPP")
-                  ) : (
-                    <span>Start Date</span>
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
-                <Calendar
-                  mode="single"
-                  selected={startDate}
-                  onSelect={handleStartDateChange}
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
-
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant={"outline"}
-                  className={cn(
-                    "w-full justify-start text-left font-normal",
-                    !endDate && "text-muted-foreground"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {endDate ? format(endDate, "PPP") : <span>End Date</span>}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
-                <Calendar
-                  mode="single"
-                  selected={endDate}
-                  onSelect={handleEndDateChange}
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
-          <Button onClick={applyFilters} disabled={!selectedJob}>
-            Apply Filters
-          </Button>
-        </div>
-
-        {selectedJob && selectedJob !== "none" ? (
-          <DataTable columns={columns} data={data} isLoading={isLoading} />
-        ) : (
-          <div className="flex flex-col items-center justify-center h-[60vh]">
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-semibold">Select a Job</h2>
-              <p className="text-muted-foreground">
-                Choose a job to view its candidates
-              </p>
+    <>
+      <Card>
+        <CardHeader>
+          <CardTitle>Candidates</CardTitle>
+          <CardDescription>View and manage job applications.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col md:flex-row gap-4 mb-6">
+            <div className="flex-1">
+              <Select onValueChange={handleJobChange} value={selectedJob}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a job" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Select a job</SelectItem>
+                  {jobPosts?.data?.map((job) => (
+                    <SelectItem key={job._id} value={job._id}>
+                      {job.title}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
+
+            <div className="flex-1">
+              <Select onValueChange={handleStatusChange} value={selectedStatus}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Filter by status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="applied">Applied</SelectItem>
+                  <SelectItem value="interview_scheduled">
+                    Interview scheduled
+                  </SelectItem>
+                  <SelectItem value="interview_done">Interview done</SelectItem>
+                  <SelectItem value="rejected">Rejected</SelectItem>
+                  <SelectItem value="offered">Offered</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex-1 flex gap-4">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !startDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {startDate ? (
+                      format(startDate, "PPP")
+                    ) : (
+                      <span>Start Date</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={startDate}
+                    onSelect={handleStartDateChange}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !endDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {endDate ? format(endDate, "PPP") : <span>End Date</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={endDate}
+                    onSelect={handleEndDateChange}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+            <Button onClick={applyFilters} disabled={!selectedJob}>
+              Apply Filters
+            </Button>
           </div>
-        )}
-      </CardContent>
-    </Card>
+
+          {selectedJob && selectedJob !== "none" ? (
+            <DataTable columns={columns} data={data} isLoading={isLoading} />
+          ) : (
+            <div className="flex flex-col items-center justify-center h-[60vh]">
+              <div className="text-center space-y-4">
+                <h2 className="text-2xl font-semibold">Select a Job</h2>
+                <p className="text-muted-foreground">
+                  Choose a job to view its candidates
+                </p>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Floating AI Chat Button */}
+      <Sheet open={isChatOpen} onOpenChange={setIsChatOpen}>
+        <SheetTrigger asChild>
+          <Button
+            size="icon"
+            className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg bg-primary hover:bg-primary/90"
+          >
+            <MessageSquare className="h-6 w-6" />
+          </Button>
+        </SheetTrigger>
+        <SheetContent className="w-[800px] sm:w-[540px] p-0 border-l">
+          <SheetHeader className="p-4 border-b">
+            <SheetTitle>AI Assistant</SheetTitle>
+          </SheetHeader>
+          <div className="h-[calc(100vh-4rem)] overflow-scroll">
+            <GlobalApplicationChat />
+          </div>
+        </SheetContent>
+      </Sheet>
+    </>
   );
 };
 
