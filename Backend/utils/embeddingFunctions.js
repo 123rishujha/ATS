@@ -28,7 +28,10 @@ Job Details
    -location: ${jobData.location}
    -jobType: ${jobData.jobType}
    -salaryRange: ${jobData.salaryRange.min}-${jobData.salaryRange.max}
-   -experience required: ${jobData.experienceRequired.min}-${jobData.experienceRequired.max}
+   -experience required: ${jobData.experienceRequired.min}-${
+    jobData.experienceRequired.max
+  }
+   -required skills: ${jobData.requiredSkills.join(", ")}
    `;
   return jobText;
 }

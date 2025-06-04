@@ -4,7 +4,7 @@ A modern applicant tracking system designed to streamline the recruitment proces
 
 ## 🌐 Live Demo
 
-[ATS System](https://lighthearted-starship-4be39a.netlify.app/) 
+[ATS System](https://lighthearted-starship-4be39a.netlify.app/)
 
 ## 📝 Overview
 
@@ -24,16 +24,19 @@ This ATS system facilitates efficient recruitment workflows with separate interf
 ### Backend Setup
 
 1. Navigate to the backend directory:
+
    ```
    cd Backend
    ```
 
 2. Install dependencies:
+
    ```
    npm install
    ```
 
 3. Create a `.env` file in the Backend directory with the following variables:
+
    ```
    PORT=8000
    MONGO_URL=your_mongodb_connection_string
@@ -51,6 +54,7 @@ This ATS system facilitates efficient recruitment workflows with separate interf
 ### Frontend Setup
 
 1. Navigate to the frontend directory:
+
    ```
    cd Frontend
    ```
@@ -59,17 +63,17 @@ This ATS system facilitates efficient recruitment workflows with separate interf
    ```
    npm install
    ```
+3. Create a `.env` file in the Backend directory with the following variables:
 
-3. Start the development server:
-   ```
-   npm run dev
-   ```
-4. Create a `.env` file in the Backend directory with the following variables:
    ```
    VITE_BACKEND_URL=your_backend_url
    VITE_USER_ROLE = {"recruiter":"your_recruite_role","jobseeker":"your_jobseeker_role"}
-    ```
+   ```
 
+4. Start the development server:
+   ```
+   npm run dev
+   ```
 5. Open your browser and visit:
    ```
    http://localhost:5173
@@ -87,11 +91,9 @@ The system leverages OpenAI's GPT models to provide the following AI-powered fea
 
 - **Application Feedback**: Uses GPT-3.5 to provide constructive feedback to candidates on their performance in interview.
 
-
 ### 3. Automated Resume Parsing
 
 - Extracts relevant information from uploaded resumes including skills, experience, and education.
-- Organizes candidate data for efficient searching and filtering.
 
 ## 🔧 Tech Stack
 
