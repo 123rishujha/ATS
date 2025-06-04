@@ -2,6 +2,10 @@ const { ApplicationModel } = require("../models/application.model");
 const { JobPostModel } = require("../models/jobpost.model");
 const { getFitScore } = require("../utils/getFitScore");
 const mongoose = require("mongoose");
+const { saveOrUpdateEmbedding } = require("../utils/saveOrUpdateEmbedding");
+const {
+  combinedTextForJobApplication,
+} = require("../utils/embeddingFunctions");
 
 // CREATE
 const createApplication = async (req, res, next) => {
@@ -38,6 +42,18 @@ const createApplication = async (req, res, next) => {
     // Increment applicantsCount for the job post
     await JobPostModel.findByIdAndUpdate(jobId, {
       $inc: { applicantsCount: 1 },
+    });
+
+    let text = await combinedTextForJobApplication({
+      userData: req.user,
+      jobData: job,
+      applicationData: application,
+    });
+
+    await saveOrUpdateEmbedding({
+      entityType: "application",
+      sourceId: application._id,
+      text: text,
     });
     res.status(201).json({
       success: true,

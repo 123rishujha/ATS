@@ -131,6 +131,13 @@ const RichTextEditor = ({
     console.log("RichTextEditor - Internal Editor Value:", editor.children);
   }, [editor.children]);
 
+  useEffect(() => {
+    if (value && JSON.stringify(value) !== JSON.stringify(editor.children)) {
+      editor.children = value;
+      editor.onChange();
+    }
+  }, [value, editor]);
+
   const renderElement = useCallback((props) => {
     const { attributes, children, element } = props;
     switch (element.type) {
@@ -286,8 +293,7 @@ const RichTextEditor = ({
           // onKeyDown={handleKeyDown}
           className="nopan nodrag custom_editable"
           style={{
-            minHeight: "50px",
-            maxHeight: "130px",
+            minHeight: "200px",
             cursor: "text",
             padding: "8px",
             borderRadius: "4px",

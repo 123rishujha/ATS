@@ -22,7 +22,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { format } from "date-fns";
-import { CalendarIcon, Eye, FileDown } from "lucide-react";
+import { Bot, CalendarIcon, Eye, FileDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useGetRecruiterJobPostsQuery } from "../RecruiterQuery";
 import { useGetApplicationsByJobIdMutation } from "../RecruiterQuery";
@@ -179,6 +179,15 @@ const Candidates = () => {
               }}
             >
               <Eye className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {
+                navigate(`${row.original?._id}/chat`);
+              }}
+            >
+              <Bot className="h-4 w-4" />
             </Button>
           </div>
         ),
